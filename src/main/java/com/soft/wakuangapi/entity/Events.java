@@ -12,7 +12,7 @@ import java.util.Date;
 public class Events {
     @Id
     @GeneratedValue
-    private String eventsId;
+    private Integer eventsId;
 
     private String eventsUrl;
     private String eventsTitle;
@@ -20,5 +20,4 @@ public class Events {
     private String eventsPlace;
     private String joinDoor;
     private Integer typeId;
-
 }

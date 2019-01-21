@@ -1,6 +1,6 @@
 package com.soft.wakuangapi.controller;
 
-import com.soft.wakuangapi.entity.Books;
+import com.soft.wakuangapi.entity.ImageUser;
 import com.soft.wakuangapi.entity.LoginUser;
 import com.soft.wakuangapi.entity.SysUser;
 import com.soft.wakuangapi.service.BooksService;
@@ -21,8 +21,8 @@ public class SysUserController {
 
     @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
     public ResponseUtil signIn(@RequestBody LoginUser loginUser) {
-        System.out.println(loginUser);return sysUserService.userLogin(loginUser);
-
+        System.out.println(loginUser);
+        return sysUserService.userLogin(loginUser);
     }
 
     @RequestMapping(value = "/sign_up", method = RequestMethod.POST)
@@ -45,5 +45,10 @@ public class SysUserController {
 //        Books books=booksService.findBooks(id);
         SysUser sysUser=sysUserService.findUser(id);
         return new ResponseUtil(0,"get user",sysUser);
+    }
+
+    @RequestMapping(value = "/avatar",method = RequestMethod.POST)
+    public void changeAvatar(@RequestBody ImageUser imageUser){
+        sysUserService.getUser(imageUser.getName(),imageUser.getBase64());
     }
 }

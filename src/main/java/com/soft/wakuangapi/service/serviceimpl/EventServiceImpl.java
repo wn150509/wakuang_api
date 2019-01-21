@@ -16,9 +16,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventsStatus> findAllEvents() {
 
-        List<Events>eventsList=eventRepository.findAll();
+        List<Events> eventsList =eventRepository.findAll();
 
-        for (int i=0;i<eventsList.size();i++){
+        for (int i = 0; i< eventsList.size(); i++){
 
         }
         return null;

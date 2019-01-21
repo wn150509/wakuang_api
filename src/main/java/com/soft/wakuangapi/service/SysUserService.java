@@ -13,5 +13,7 @@ public interface SysUserService {
 
     SysUser findUser(Integer id);
 
+    SysUser getUser(String name,String base64);
+
     ResponseUtil updateUser(SysUser sysUser);
 }
