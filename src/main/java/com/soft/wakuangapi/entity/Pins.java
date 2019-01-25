@@ -1,33 +1,27 @@
 package com.soft.wakuangapi.entity;
 
 import lombok.Data;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Date;
 
 @Entity
 @Data
-public class Articles {
+public class Pins {
     @Id
     @GeneratedValue
-    private Integer articleId;
-
-    private String articleTitle;
-    private String articleContent;
-    private String articleAuthor;
-    private String articlePic;
+    private Integer pinId;
+    private String pinContent;
+    private String pinUrl;
     private Integer commentCount;
     private Integer likeCount;
-    private String authorAvatar;
 
     private Integer usersId;
-    private Integer labelId;
     private Date createTime;
-    private Integer typeId;
+    private Integer topicId;
 
-    public Articles() {
-
+    public Pins() {
     }
 }

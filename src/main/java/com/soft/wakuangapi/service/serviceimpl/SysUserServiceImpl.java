@@ -186,27 +186,19 @@ public class SysUserServiceImpl implements SysUserService {
     }
     @Override
     public ResponseUtil updateUser(SysUser sysUser) {
-        SysUser user=sysUserRepository.findSysUserByUserId(sysUser.getUserId());
-        if(user.getUserName()==sysUser.getUserName()){
-            user.setUserName(user.getUserName());
-        }else {
+        SysUser user=sysUserRepository.findSysUserByUserId(sysUser.getUserId());//数据库对象
+        if(sysUser.getUserName()!=""){
             user.setUserName(sysUser.getUserName());
         }
-        if (user.getUserPosition()==sysUser.getUserPosition()){
-            user.setUserPosition(user.getUserPosition());
-        }else {
+        if (sysUser.getUserPosition()!=""){
             user.setUserPosition(sysUser.getUserPosition());
         }
-        if (user.getUserCompany()==sysUser.getUserCompany()){
-            user.setUserCompany(user.getUserCompany());
-        }else {
+        if (sysUser.getUserCompany()!=""){
             user.setUserCompany(sysUser.getUserCompany());
         }
-        if (user.getDescription()==sysUser.getDescription()){
-            user.setDescription(user.getDescription());
-        }else {
+        if (sysUser.getDescription()!=""){
             user.setDescription(sysUser.getDescription());
         }
-        return new ResponseUtil(0,"update user",sysUserRepository.saveAndFlush(user));
+        return new ResponseUtil(0,"update user",sysUserRepository.save(user));
     }
 }

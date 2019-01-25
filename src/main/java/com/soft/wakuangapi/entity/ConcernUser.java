@@ -12,6 +12,5 @@ public class ConcernUser {
     private Integer concernId;
 
     private Integer userId;
-    private Integer otherUserId;
     private Integer labelId;
 }

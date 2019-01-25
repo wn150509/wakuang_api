@@ -23,5 +23,4 @@ public interface SysUserRepository extends JpaRepository<SysUser, Integer> {
      */
     @Query("select u FROM SysUser  u ORDER BY u.likeCount DESC ")
     List<SysUser> findHotUsers();
-
 }

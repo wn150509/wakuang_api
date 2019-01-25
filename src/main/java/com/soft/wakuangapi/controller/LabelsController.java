@@ -23,6 +23,11 @@ public class LabelsController {
         return new ResponseUtil(0,"get concern labels",concernService.getConcernLabels(loginUser.getUserId()));
     }
 
+    @RequestMapping(value = "/all",method = RequestMethod.GET)
+    public ResponseUtil getAllLabel(){
+        return new ResponseUtil(0,"get concern labels",labelsService.findAllLabels());
+    }
+
     @RequestMapping(value = "/insertlabel",method = RequestMethod.POST)
     public ResponseUtil insetLabelConcern(@RequestBody ConcernUser concernUser){
         return new ResponseUtil(0,"insert label",concernService.insertConcern(concernUser));
