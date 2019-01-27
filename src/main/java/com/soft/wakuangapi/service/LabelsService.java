@@ -10,4 +10,6 @@ public interface LabelsService {
     List<Labels> findAllLabels();
 
     LabelVo getonelabel(Integer labelid,Integer userid);
+
+    Labels getoneLabel(String name);
 }

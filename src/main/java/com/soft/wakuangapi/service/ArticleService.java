@@ -14,4 +14,9 @@ public interface ArticleService {
 
     ResponseUtil releaseArticle(Articles article);
 
+    List<Articles>getFollowArticle(Integer id);
+
+    List<Articles>getFollowTime(Integer id);
+
+    List<Articles>getFollowComment(Integer id);
 }

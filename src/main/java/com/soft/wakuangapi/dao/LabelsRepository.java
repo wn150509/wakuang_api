@@ -11,4 +11,6 @@ public interface LabelsRepository extends JpaRepository<Labels,Integer>{
     List<Labels>findAll();
 
     Labels findLabelsByLabelsId(Integer id);
+
+    Labels findLabelsByLabelsName(String name);
 }

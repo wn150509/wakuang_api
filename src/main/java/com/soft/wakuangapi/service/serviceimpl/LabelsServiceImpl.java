@@ -42,4 +42,9 @@ public class LabelsServiceImpl implements LabelsService {
         return labelVo;
     }
 
+    @Override
+    public Labels getoneLabel(String name) {
+        return labelsRepository.findLabelsByLabelsName(name);
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.soft.wakuangapi.controller;
 
 import com.soft.wakuangapi.entity.Articles;
+import com.soft.wakuangapi.entity.SysUser;
 import com.soft.wakuangapi.service.ArticleService;
 import com.soft.wakuangapi.utils.ResponseUtil;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,18 @@ public class ArticleController {
     @RequestMapping(value = "/type/{id}",method = RequestMethod.GET)
     public ResponseUtil getTypeArticles(@PathVariable Integer id){
         return new ResponseUtil(0,"get type",articleService.findTypearticle(id));
+    }
+    @RequestMapping(value = "/type",method = RequestMethod.POST)
+    public ResponseUtil getFollowArticles(@RequestBody SysUser sysUser){
+        return new ResponseUtil(0,"get type",articleService.getFollowArticle(sysUser.getUserId()));
+    }
+    @RequestMapping(value = "/type/time",method = RequestMethod.POST)
+    public ResponseUtil getFollowTime(@RequestBody SysUser sysUser){
+        return new ResponseUtil(0,"get type",articleService.getFollowTime(sysUser.getUserId()));
+    }
+    @RequestMapping(value = "/type/comment",method = RequestMethod.POST)
+    public ResponseUtil getFollowComment(@RequestBody SysUser sysUser){
+        return new ResponseUtil(0,"get type",articleService.getFollowComment(sysUser.getUserId()));
     }
     @RequestMapping(value = "/type/{id}/time",method = RequestMethod.GET)
     public ResponseUtil getTypetime(@PathVariable Integer id){

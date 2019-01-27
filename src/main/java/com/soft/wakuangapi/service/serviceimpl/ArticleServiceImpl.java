@@ -1,15 +1,13 @@
 package com.soft.wakuangapi.service.serviceimpl;
 
-import com.qiniu.common.Zone;
-import com.qiniu.storage.BucketManager;
-import com.qiniu.storage.Configuration;
 import com.qiniu.util.Auth;
 import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import com.soft.wakuangapi.dao.ArticlesRepository;
+import com.soft.wakuangapi.dao.ConcernRepository;
 import com.soft.wakuangapi.entity.Articles;
-import com.soft.wakuangapi.entity.SysUser;
+import com.soft.wakuangapi.entity.ConcernUser;
 import com.soft.wakuangapi.service.ArticleService;
 import com.soft.wakuangapi.utils.QiNiuFileUpUtil;
 import com.soft.wakuangapi.utils.ResponseUtil;
@@ -21,9 +19,9 @@ import sun.misc.BASE64Decoder;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -37,33 +35,31 @@ public class ArticleServiceImpl implements ArticleService {
     /**指定保存到七牛的文件名--同名上传会报错  {"error":"file exists"}*/
     /** {"hash":"FrQF5eX_kNsNKwgGNeJ4TbBA0Xzr","key":"aa1.jpg"} 正常返回 key为七牛空间地址 http:/xxxx.com/aa1.jpg */
     public static  String imgFilePath = "D:\\temp\\"+"222.jpg";
-    //上传到七牛后保存的文件名    访问为：http://oswj11a86.bkt.clouddn.com/daimo6.png
 //    public String key;
     //密钥配置
     public Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
 
     @Resource
     private ArticlesRepository articlesRepository;
+    @Resource
+    private ConcernRepository concernRepository;
     @Override
     public List<Articles> findTypearticle(Integer id) {
         return articlesRepository.findByTypeId(id);
     }
-
     @Override
     public List<Articles> findbytime(Integer id) {
         return articlesRepository.findByTypeIdOrderByCreateTimeDesc(id);
     }
-
     @Override
     public List<Articles> findbycomment(Integer id) {
         return articlesRepository.findByTypeIdOrderByCommentCountDesc(id);
     }
-
     @Override
     public ResponseUtil releaseArticle(Articles article) {
         Articles articles=new Articles();
         if (article.getArticlePic()==null){
-
+            articles.setArticlePic(article.getArticlePic());
         }else {
             //给文章添加封面
             //生成key
@@ -104,8 +100,70 @@ public class ArticleServiceImpl implements ArticleService {
             String str1=new QiNiuFileUpUtil().publicFile(key,"http://123.pen46789.cn");
             articles.setArticlePic(str1);
         }
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+        Date date=null;
+        try {
+            date=df.parse(df.format(new Date()));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        articles.setArticleTitle(article.getArticleTitle());
+        articles.setArticleAuthor(article.getArticleAuthor());
+        articles.setLabelId(article.getLabelId());
+        articles.setCreateTime(date);
+        articles.setArticleContent(article.getArticleContent());
+        articles.setAuthorAvatar(article.getAuthorAvatar());
+        articles.setCommentCount(0);
+        articles.setLikeCount(0);
+        articles.setUsersId(article.getUsersId());
+
+        articles.setTypeId(article.getTypeId());
         return new ResponseUtil(0,"add new article",articlesRepository.save(articles));
     }
+    @Override
+    public List<Articles> getFollowArticle(Integer id) {
+        return getList(id);
+    }
+
+    @Override
+    public List<Articles> getFollowTime(Integer id) {
+        List<Articles>articlesList=new ArrayList<>();
+        articlesList.addAll(getList(id));
+        Collections.sort(articlesList, new Comparator<Articles>() {
+            @Override
+            public int compare(Articles o1, Articles o2) {
+//                SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //创建要显示的日期格式
+//                //注意了，这里的   MM 在java中代表月份，而  mm 代表分钟， HH 代表24小时制的时间， hh 代表12小时制的时间,很严格的
+//
+//                Date date = articlesList.get(1).getCreateTime();      //将从数据库读出来的 timestamp 类型的时间转换为java的Date类型
+//                String s = fmt.format(date);
+                return o2.getCreateTime().compareTo(o1.getCreateTime());
+            }
+        });
+//        System.out.println("降序排序后--:"+list.toString());
+
+        return articlesList;
+    }
+
+    @Override
+    public List<Articles> getFollowComment(Integer id) {
+        List<Articles>articlesList=new ArrayList<>();
+        articlesList.addAll(getList(id));
+        Collections.sort(articlesList, new Comparator<Articles>() {
+            @Override
+            public int compare(Articles o1, Articles o2) {
+//                SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //创建要显示的日期格式
+//                //注意了，这里的   MM 在java中代表月份，而  mm 代表分钟， HH 代表24小时制的时间， hh 代表12小时制的时间,很严格的
+//
+//                Date date = articlesList.get(1).getCreateTime();      //将从数据库读出来的 timestamp 类型的时间转换为java的Date类型
+//                String s = fmt.format(date);
+                return o2.getCommentCount().compareTo(o1.getCommentCount());
+            }
+        });
+//        System.out.println("降序排序后--:"+list.toString());
+        return articlesList;
+    }
+
     //简单上传，使用默认策略，只需要设置上传的空间名就可以了
     public String getUpToken(){
         StringMap putPolicy = new StringMap();
@@ -144,5 +202,17 @@ public class ArticleServiceImpl implements ArticleService {
         {
             return false;
         }
+    }
+
+    //遍历List
+    public List<Articles>getList(Integer id){
+        List<ConcernUser>concernUserList=concernRepository.findAllByUserId(id);
+        List<Articles>articles=new ArrayList<>();
+        for (int i=0;i<concernUserList.size();i++){
+            List<Articles>articlesList=new ArrayList<>();
+            articlesList=articlesRepository.findAllByLabelId(concernUserList.get(i).getLabelId());
+            articles.addAll(articlesList);
+        }
+        return articles;
     }
 }

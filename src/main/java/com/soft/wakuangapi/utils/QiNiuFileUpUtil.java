@@ -3,6 +3,8 @@ package com.soft.wakuangapi.utils;
 import com.sun.deploy.net.URLEncoder;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 /**
@@ -22,13 +24,32 @@ public class QiNiuFileUpUtil {
     }
 
     public static void main(String args[]) throws IOException{
-        File dir=new File("D:/temp/");
-        File[] lst=dir.listFiles();
-        for (File f:lst) {
-            if (new Date().getTime() - f.lastModified() > 24 * 60 * 60 * 1000) {
-                f.delete();
-            }
+//        File dir=new File("D:/temp/");
+//        File[] lst=dir.listFiles();
+//        for (File f:lst) {
+//            if (new Date().getTime() - f.lastModified() > 24 * 60 * 60 * 1000) {
+//                f.delete();
+//            }
+//        }
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//设置日期格式
+        try {
+            System.out.println(dateToStamp());
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+        System.out.println(df.format(new Date()));// new Date()为获取当前系统时间
+    }
+
+    /*
+     * 将时间转换为时间戳
+     */
+    public static String dateToStamp() throws ParseException {
+        String res;
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = simpleDateFormat.parse(simpleDateFormat.format(new Date()));
+        long ts = date.getTime();
+        res = String.valueOf(ts);
+        return res;
     }
     /**
      * 公有空间返回文件URL

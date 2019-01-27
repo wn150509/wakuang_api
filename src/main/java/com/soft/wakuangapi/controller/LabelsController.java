@@ -1,10 +1,12 @@
 package com.soft.wakuangapi.controller;
 
 import com.soft.wakuangapi.entity.ConcernUser;
+import com.soft.wakuangapi.entity.Labels;
 import com.soft.wakuangapi.entity.SysUser;
 import com.soft.wakuangapi.service.ConcernService;
 import com.soft.wakuangapi.service.LabelsService;
 import com.soft.wakuangapi.utils.ResponseUtil;
+import okhttp3.Request;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -41,5 +43,10 @@ public class LabelsController {
     @RequestMapping(value = "/findonelabel",method = RequestMethod.POST)
     public ResponseUtil lookonelabel(@RequestBody ConcernUser concernUser){
         return new ResponseUtil(0,"find one label",labelsService.getonelabel(concernUser.getLabelId(),concernUser.getUserId()));
+    }
+
+    @RequestMapping(value = "/onelabel",method = RequestMethod.POST)
+    public ResponseUtil getLabel(@RequestBody Labels labels){
+        return new ResponseUtil(0,"get concern labels",labelsService.getoneLabel(labels.getLabelsName()));
     }
 }
