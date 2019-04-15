@@ -34,4 +34,8 @@ public class TopicController {
     ResponseUtil deleteTopic(@RequestBody TopicUser topicUser){
         return new ResponseUtil(0,"delete topic",topicUserService.deleteTopicUser(topicUser));
     }
+    @RequestMapping(value = "/concerned",method = RequestMethod.POST)
+    ResponseUtil getAllConcernedTopics(@RequestBody SysUser sysUser){
+        return new ResponseUtil(0,"all concerned topics",topicUserService.getConcernedTopics(sysUser.getUserId()));
+    }
 }

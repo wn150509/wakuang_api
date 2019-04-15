@@ -2,6 +2,7 @@ package com.soft.wakuangapi.service;
 
 import com.soft.wakuangapi.entity.Articles;
 import com.soft.wakuangapi.utils.ResponseUtil;
+import com.soft.wakuangapi.vo.ArticleVo;
 
 import java.util.List;
 
@@ -19,4 +20,8 @@ public interface ArticleService {
     List<Articles>getFollowTime(Integer id);
 
     List<Articles>getFollowComment(Integer id);
+
+    ArticleVo getoneArticle(Integer id);
+
+    List<Articles>queryArticle(String articleTitle);
 }

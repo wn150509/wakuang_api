@@ -51,4 +51,9 @@ public class SysUserController {
     public void changeAvatar(@RequestBody ImageUser imageUser){
         sysUserService.getUser(imageUser.getName(),imageUser.getBase64());
     }
+
+    @RequestMapping(value = "/queryuser",method = RequestMethod.POST)
+    public ResponseUtil queryUser(@RequestBody SysUser sysUser){
+        return new ResponseUtil(0,"query user",sysUserService.querySysUserList(sysUser.getUserName()));
+    }
 }

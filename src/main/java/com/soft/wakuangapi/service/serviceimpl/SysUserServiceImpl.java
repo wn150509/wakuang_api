@@ -22,6 +22,7 @@ import sun.misc.BASE64Decoder;
 import javax.annotation.Resource;
 import java.io.*;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -200,5 +201,11 @@ public class SysUserServiceImpl implements SysUserService {
             user.setDescription(sysUser.getDescription());
         }
         return new ResponseUtil(0,"update user",sysUserRepository.save(user));
+    }
+
+    @Override
+    public List<SysUser> querySysUserList(String userName) {
+        List<SysUser>sysUserList=sysUserRepository.querySysUserList(userName);
+        return sysUserList;
     }
 }

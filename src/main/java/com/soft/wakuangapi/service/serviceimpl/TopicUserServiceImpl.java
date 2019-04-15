@@ -53,4 +53,22 @@ public class TopicUserServiceImpl implements TopicUserService {
     public ResponseUtil deleteTopicUser(TopicUser topicUser) {
         return new ResponseUtil(0,"delete topicuser",topicUserRepository.deleteTopicUserByUserIdAndTopicId(topicUser.getUserId(),topicUser.getTopicId()));
     }
+
+    @Override
+    public List<Topics> getConcernedTopics(Integer userId) {
+        List<Topics>topicsList=new ArrayList<>();
+        List<TopicUser>topicUserList=topicUserRepository.findAllByUserId(userId);
+        if (topicUserList.size()<=4){
+            for (int i=0;i<topicUserList.size();i++){
+                Topics topics=topicRepository.findTopicsByTopicId(topicUserList.get(i).getTopicId());
+                topicsList.add(topics);
+            }
+        }else {
+            for (int i=0;i<4;i++){
+                Topics topics=topicRepository.findTopicsByTopicId(topicUserList.get(i).getTopicId());
+                topicsList.add(topics);
+            }
+        }
+        return topicsList;
+    }
 }

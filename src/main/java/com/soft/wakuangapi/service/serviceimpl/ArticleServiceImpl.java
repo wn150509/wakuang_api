@@ -4,13 +4,14 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
-import com.soft.wakuangapi.dao.ArticlesRepository;
-import com.soft.wakuangapi.dao.ConcernRepository;
+import com.soft.wakuangapi.dao.*;
 import com.soft.wakuangapi.entity.Articles;
 import com.soft.wakuangapi.entity.ConcernUser;
+import com.soft.wakuangapi.entity.SysUser;
 import com.soft.wakuangapi.service.ArticleService;
 import com.soft.wakuangapi.utils.QiNiuFileUpUtil;
 import com.soft.wakuangapi.utils.ResponseUtil;
+import com.soft.wakuangapi.vo.ArticleVo;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -43,16 +44,35 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticlesRepository articlesRepository;
     @Resource
     private ConcernRepository concernRepository;
+    @Resource
+    private CommentRepository commentRepository;
+    @Resource
+    private SysUserRepository sysUserRepository;
+    @Resource
+    private CommentChildRepository commentChildRepository;
+
     @Override
     public List<Articles> findTypearticle(Integer id) {
+        for(int i=0;i<articlesRepository.findByTypeId(id).size();i++){
+            articlesRepository.findByTypeId(id).get(i).setCommentCount(getCount(id));
+            articlesRepository.save(articlesRepository.findByTypeId(id).get(i));
+        }
         return articlesRepository.findByTypeId(id);
     }
     @Override
     public List<Articles> findbytime(Integer id) {
+        for(int i=0;i<articlesRepository.findByTypeId(id).size();i++){
+            articlesRepository.findByTypeId(id).get(i).setCommentCount(getCount(id));
+            articlesRepository.save(articlesRepository.findByTypeId(id).get(i));
+        }
         return articlesRepository.findByTypeIdOrderByCreateTimeDesc(id);
     }
     @Override
     public List<Articles> findbycomment(Integer id) {
+        for(int i=0;i<articlesRepository.findByTypeId(id).size();i++){
+            articlesRepository.findByTypeId(id).get(i).setCommentCount(getCount(id));
+            articlesRepository.save(articlesRepository.findByTypeId(id).get(i));
+        }
         return articlesRepository.findByTypeIdOrderByCommentCountDesc(id);
     }
     @Override
@@ -132,16 +152,9 @@ public class ArticleServiceImpl implements ArticleService {
         Collections.sort(articlesList, new Comparator<Articles>() {
             @Override
             public int compare(Articles o1, Articles o2) {
-//                SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //创建要显示的日期格式
-//                //注意了，这里的   MM 在java中代表月份，而  mm 代表分钟， HH 代表24小时制的时间， hh 代表12小时制的时间,很严格的
-//
-//                Date date = articlesList.get(1).getCreateTime();      //将从数据库读出来的 timestamp 类型的时间转换为java的Date类型
-//                String s = fmt.format(date);
                 return o2.getCreateTime().compareTo(o1.getCreateTime());
             }
         });
-//        System.out.println("降序排序后--:"+list.toString());
-
         return articlesList;
     }
 
@@ -152,15 +165,25 @@ public class ArticleServiceImpl implements ArticleService {
         Collections.sort(articlesList, new Comparator<Articles>() {
             @Override
             public int compare(Articles o1, Articles o2) {
-//                SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //创建要显示的日期格式
-//                //注意了，这里的   MM 在java中代表月份，而  mm 代表分钟， HH 代表24小时制的时间， hh 代表12小时制的时间,很严格的
-//
-//                Date date = articlesList.get(1).getCreateTime();      //将从数据库读出来的 timestamp 类型的时间转换为java的Date类型
-//                String s = fmt.format(date);
                 return o2.getCommentCount().compareTo(o1.getCommentCount());
             }
         });
-//        System.out.println("降序排序后--:"+list.toString());
+        return articlesList;
+    }
+
+    @Override
+    public ArticleVo getoneArticle(Integer articleid) {
+        Articles articles=articlesRepository.findArticlesByArticleId(articleid);
+        articles.setCommentCount(getCount(articleid));
+        articlesRepository.save(articles);
+        SysUser sysUser=sysUserRepository.findSysUserByUserId(articles.getUsersId());
+        ArticleVo articleVo=new ArticleVo(sysUser,articles);
+        return articleVo;
+    }
+
+    @Override
+    public List<Articles> queryArticle(String articleTitle) {
+        List<Articles>articlesList=articlesRepository.queryAticleList(articleTitle);
         return articlesList;
     }
 
@@ -203,7 +226,6 @@ public class ArticleServiceImpl implements ArticleService {
             return false;
         }
     }
-
     //遍历List
     public List<Articles>getList(Integer id){
         List<ConcernUser>concernUserList=concernRepository.findAllByUserId(id);
@@ -213,6 +235,14 @@ public class ArticleServiceImpl implements ArticleService {
             articlesList=articlesRepository.findAllByLabelId(concernUserList.get(i).getLabelId());
             articles.addAll(articlesList);
         }
+        for(int j=0;j<articles.size();j++){
+            articles.get(j).setCommentCount(getCount(articles.get(j).getArticleId()));
+        }
         return articles;
+    }
+    //给文章评论数赋值
+    public int getCount(Integer articleid){
+        return commentRepository.findArticleCommentsByArticleId(articleid).size()
+                +commentChildRepository.findCommentChildrenByArticleId(articleid).size();
     }
 }

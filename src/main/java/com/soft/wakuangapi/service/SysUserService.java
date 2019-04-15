@@ -4,6 +4,8 @@ import com.soft.wakuangapi.entity.LoginUser;
 import com.soft.wakuangapi.entity.SysUser;
 import com.soft.wakuangapi.utils.ResponseUtil;
 
+import java.util.List;
+
 public interface SysUserService {
     ResponseUtil userLogin(LoginUser loginUser);
 
@@ -16,4 +18,6 @@ public interface SysUserService {
     SysUser getUser(String name,String base64);
 
     ResponseUtil updateUser(SysUser sysUser);
+
+    List<SysUser>querySysUserList(String userName);
 }

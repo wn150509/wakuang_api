@@ -1,5 +1,6 @@
 package com.soft.wakuangapi.service;
 
+import com.soft.wakuangapi.dao.ArticlesRepository;
 import com.soft.wakuangapi.dao.ConcernRepository;
 import com.soft.wakuangapi.dao.SysUserRepository;
 import com.soft.wakuangapi.entity.*;
@@ -26,6 +27,10 @@ public class SysUserServiceTest {
     private ArticleService articleService;
     @Resource
     private SysUserService sysUserService;
+    @Resource
+    private CommentService commentService;
+    @Resource
+    private ArticlesRepository articlesRepository;
     @Test
     public void userLogin() throws Exception {
         SysUser sysUser = sysUserRepository.findSysUserByEmail("111");
@@ -44,13 +49,15 @@ public class SysUserServiceTest {
 
     @Test
     public void getUser() throws Exception {
-        List<Articles>articlesList=articleService.getFollowTime(1);
-//        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //创建要显示的日期格式
-//        //注意了，这里的   MM 在java中代表月份，而  mm 代表分钟， HH 代表24小时制的时间， hh 代表12小时制的时间,很严格的
-//
-//        Date date = articlesList.get(1).getCreateTime();      //将从数据库读出来的 timestamp 类型的时间转换为java的Date类型
-//        String s = fmt.format(date);
-        System.out.println(articlesList);
+//        ArticleComment articleComment=new ArticleComment();
+//        articleComment.setArticleId(1);
+//        articleComment.setUserId(1);
+//        articleComment.setCommentContent("写的好");
+//        articleComment.setCommentTime(new Date());
+//        System.out.println(commentService.addComment(articleComment));
+//        System.out.println(commentService.deleteComment(33));
+        List<Articles>articlesList=articlesRepository.queryAticleList("测试");
+        System.out.println(articlesList.size());
     }
 
 }
