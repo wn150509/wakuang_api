@@ -77,4 +77,14 @@ public class SysUserController {
     public ResponseUtil getConcernUser(@RequestBody SysUser loginUser){
         return new ResponseUtil(0,"get concern user",userConcernService.getConcernUser(loginUser.getUserId()));
     }
+
+    @RequestMapping(value = "/otheruserConcern",method = RequestMethod.POST)
+    public ResponseUtil getOtherUserConcern(@RequestBody UserUser userUser){
+        return userConcernService.getOtherConcern(userUser);
+    }
+
+    @RequestMapping(value = "/otheruserConcerner",method = RequestMethod.POST)
+    public ResponseUtil getOtherUserConcerner(@RequestBody UserUser userUser){
+        return userConcernService.getOtherConcerner(userUser);
+    }
 }

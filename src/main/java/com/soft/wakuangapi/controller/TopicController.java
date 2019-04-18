@@ -2,6 +2,7 @@ package com.soft.wakuangapi.controller;
 
 import com.soft.wakuangapi.entity.SysUser;
 import com.soft.wakuangapi.entity.TopicUser;
+import com.soft.wakuangapi.entity.Topics;
 import com.soft.wakuangapi.service.TopicService;
 import com.soft.wakuangapi.service.TopicUserService;
 import com.soft.wakuangapi.utils.ResponseUtil;
@@ -37,5 +38,9 @@ public class TopicController {
     @RequestMapping(value = "/concerned",method = RequestMethod.POST)
     ResponseUtil getAllConcernedTopics(@RequestBody SysUser sysUser){
         return new ResponseUtil(0,"all concerned topics",topicUserService.getConcernedTopics(sysUser.getUserId()));
+    }
+    @RequestMapping(value = "/topicname",method = RequestMethod.POST)
+    ResponseUtil getOneTopicByTopicName(@RequestBody Topics topics){
+        return topicService.getTopicIdbyName(topics.getTopicName());
     }
 }

@@ -8,5 +8,7 @@ import java.util.List;
 public interface TopicRepository extends JpaRepository<Topics,Integer> {
     List<Topics>findAll();
 
+    Topics findTopicsByTopicName(String name);
+
     Topics findTopicsByTopicId(Integer topicId);
 }

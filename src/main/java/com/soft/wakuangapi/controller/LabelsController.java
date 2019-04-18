@@ -1,9 +1,6 @@
 package com.soft.wakuangapi.controller;
 
-import com.soft.wakuangapi.entity.ConcernUser;
-import com.soft.wakuangapi.entity.Labels;
-import com.soft.wakuangapi.entity.SearchLabels;
-import com.soft.wakuangapi.entity.SysUser;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.service.ConcernService;
 import com.soft.wakuangapi.service.LabelsService;
 import com.soft.wakuangapi.utils.ResponseUtil;
@@ -53,5 +50,10 @@ public class LabelsController {
     @RequestMapping(value = "/querylabels",method = RequestMethod.POST)
     public ResponseUtil queryLabels(@RequestBody SearchLabels searchLabels){
         return new ResponseUtil(0,"query labels",labelsService.queryLabels(searchLabels));
+    }
+
+    @RequestMapping(value = "/otherlabelstatus",method = RequestMethod.POST)
+    public ResponseUtil getOtherLabelStatus(@RequestBody UserUser userUser){
+        return concernService.getOtherConcern(userUser);
     }
 }

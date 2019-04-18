@@ -15,4 +15,8 @@ public interface UserConcernService {
     ResponseUtil deleteUserConcern(UserUser userUser);
 
     List<SysUser>getConcernUser(Integer id);
+
+    ResponseUtil getOtherConcern(UserUser userUser);
+
+    ResponseUtil getOtherConcerner(UserUser userUser);
 }

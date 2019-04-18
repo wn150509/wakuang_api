@@ -15,4 +15,9 @@ public class TopicServiceImpl implements TopicService {
     public ResponseUtil getAll() {
         return new ResponseUtil(0,"get all topics",topicRepository.findAll());
     }
+
+    @Override
+    public ResponseUtil getTopicIdbyName(String topicName) {
+        return new ResponseUtil(0,"get topicid by name",topicRepository.findTopicsByTopicName(topicName));
+    }
 }
