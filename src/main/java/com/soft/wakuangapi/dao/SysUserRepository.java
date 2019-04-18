@@ -1,6 +1,5 @@
 package com.soft.wakuangapi.dao;
 
-import com.soft.wakuangapi.entity.Articles;
 import com.soft.wakuangapi.entity.SysUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

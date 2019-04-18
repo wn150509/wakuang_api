@@ -57,7 +57,8 @@ public class SysUserServiceTest {
 //        System.out.println(commentService.addComment(articleComment));
 //        System.out.println(commentService.deleteComment(33));
         List<Articles>articlesList=articlesRepository.queryAticleList("测试");
-        System.out.println(articlesList.size());
+        List<Articles>articlesList1=articlesRepository.findAll();
+        System.out.println(articlesList1.size());
     }
 
 }

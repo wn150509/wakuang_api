@@ -11,7 +11,7 @@ import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SysUserRepositoryTest {
+public class SysUserConcernRepositoryTest {
     @Resource
     private SysUserRepository sysUserRepository;
     @Resource

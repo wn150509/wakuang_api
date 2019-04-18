@@ -1,10 +1,9 @@
 package com.soft.wakuangapi.controller;
 
-import com.soft.wakuangapi.entity.ImageUser;
-import com.soft.wakuangapi.entity.LoginUser;
-import com.soft.wakuangapi.entity.SysUser;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.service.BooksService;
 import com.soft.wakuangapi.service.SysUserService;
+import com.soft.wakuangapi.service.UserConcernService;
 import com.soft.wakuangapi.utils.ResponseUtil;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +17,8 @@ public class SysUserController {
     private SysUserService sysUserService;
     @Resource
     private BooksService booksService;
+    @Resource
+    private UserConcernService userConcernService;
 
     @RequestMapping(value = "/sign_in", method = RequestMethod.POST)
     public ResponseUtil signIn(@RequestBody LoginUser loginUser) {
@@ -53,7 +54,27 @@ public class SysUserController {
     }
 
     @RequestMapping(value = "/queryuser",method = RequestMethod.POST)
-    public ResponseUtil queryUser(@RequestBody SysUser sysUser){
-        return new ResponseUtil(0,"query user",sysUserService.querySysUserList(sysUser.getUserName()));
+    public ResponseUtil queryUser(@RequestBody SearchUser searchUser){
+        return new ResponseUtil(0,"query user",sysUserService.querySysUserList(searchUser));
+    }
+
+    @RequestMapping(value = "/insertuser",method = RequestMethod.POST)
+    public ResponseUtil insetUserConcern(@RequestBody UserUser userUser){
+        return new ResponseUtil(0,"insert userConcern",userConcernService.insertUserConcern(userUser));
+    }
+
+    @RequestMapping(value = "/deleteuser",method = RequestMethod.POST)
+    public ResponseUtil deleteUserConcern(@RequestBody UserUser userUser){
+        return new ResponseUtil(0,"delete userConcern",userConcernService.deleteUserConcern(userUser));
+    }
+
+    @RequestMapping(value = "/concern",method = RequestMethod.POST)
+    public ResponseUtil getUserStatus(@RequestBody UserUser userUser){
+        return new ResponseUtil(0,"get user concern",userConcernService.getUserConcern(userUser));
+    }
+
+    @RequestMapping(value = "/userConcern",method = RequestMethod.POST)
+    public ResponseUtil getConcernUser(@RequestBody SysUser loginUser){
+        return new ResponseUtil(0,"get concern user",userConcernService.getConcernUser(loginUser.getUserId()));
     }
 }

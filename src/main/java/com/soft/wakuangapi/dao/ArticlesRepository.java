@@ -25,4 +25,10 @@ public interface ArticlesRepository extends JpaRepository<Articles,Integer> {
      */
     @Query(value = "select * from articles where article_title LIKE CONCAT('%',:article_title,'%')", nativeQuery = true)
     List<Articles> queryAticleList(@Param("article_title") String article_title);
+
+    List<Articles>findAllByUsersIdOrderByCreateTimeDesc(Integer userId);
+
+    List<Articles>findAllByUsersIdOrderByLikeCountDesc(Integer userId);
+
+    List<Articles>findAllByUsersId(Integer userId);
 }

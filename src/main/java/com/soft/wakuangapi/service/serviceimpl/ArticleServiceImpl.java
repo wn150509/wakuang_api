@@ -5,9 +5,7 @@ import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import com.soft.wakuangapi.dao.*;
-import com.soft.wakuangapi.entity.Articles;
-import com.soft.wakuangapi.entity.ConcernUser;
-import com.soft.wakuangapi.entity.SysUser;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.service.ArticleService;
 import com.soft.wakuangapi.utils.QiNiuFileUpUtil;
 import com.soft.wakuangapi.utils.ResponseUtil;
@@ -23,6 +21,7 @@ import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Collections;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -43,6 +42,8 @@ public class ArticleServiceImpl implements ArticleService {
     @Resource
     private ArticlesRepository articlesRepository;
     @Resource
+    private LikeRepository likeRepository;
+    @Resource
     private ConcernRepository concernRepository;
     @Resource
     private CommentRepository commentRepository;
@@ -52,28 +53,37 @@ public class ArticleServiceImpl implements ArticleService {
     private CommentChildRepository commentChildRepository;
 
     @Override
-    public List<Articles> findTypearticle(Integer id) {
-        for(int i=0;i<articlesRepository.findByTypeId(id).size();i++){
-            articlesRepository.findByTypeId(id).get(i).setCommentCount(getCount(id));
-            articlesRepository.save(articlesRepository.findByTypeId(id).get(i));
+    public List<ArticleStatus> findTypearticle(UserType userType) {
+        List<ArticleStatus>articleStatusList=new ArrayList<>();
+        List<ArticleStatus>articleStatuses=getArticleStatus(userType.getUserId());
+        for (int i=0;i<articleStatuses.size();i++){
+            if (articleStatuses.get(i).getTypeId()==userType.getTypeId()){
+                articleStatusList.add(articleStatuses.get(i));
+            }
         }
-        return articlesRepository.findByTypeId(id);
+        return articleStatusList;
     }
     @Override
-    public List<Articles> findbytime(Integer id) {
-        for(int i=0;i<articlesRepository.findByTypeId(id).size();i++){
-            articlesRepository.findByTypeId(id).get(i).setCommentCount(getCount(id));
-            articlesRepository.save(articlesRepository.findByTypeId(id).get(i));
+    public List<ArticleStatus> findbytime(UserType userType) {
+        List<ArticleStatus>articleStatusList=new ArrayList<>();
+        List<ArticleStatus>articleStatuses=getArticleStatus(userType.getUserId());
+        for (int i=0;i<articleStatuses.size();i++){
+            if (articleStatuses.get(i).getTypeId()==userType.getTypeId()){
+                articleStatusList.add(articleStatuses.get(i));
+            }
         }
-        return articlesRepository.findByTypeIdOrderByCreateTimeDesc(id);
+        return paixuTime(articleStatusList);
     }
     @Override
-    public List<Articles> findbycomment(Integer id) {
-        for(int i=0;i<articlesRepository.findByTypeId(id).size();i++){
-            articlesRepository.findByTypeId(id).get(i).setCommentCount(getCount(id));
-            articlesRepository.save(articlesRepository.findByTypeId(id).get(i));
+    public List<ArticleStatus> findbycomment(UserType userType) {
+        List<ArticleStatus>articleStatusList=new ArrayList<>();
+        List<ArticleStatus>articleStatuses=getArticleStatus(userType.getUserId());
+        for (int i=0;i<articleStatuses.size();i++){
+            if (articleStatuses.get(i).getTypeId()==userType.getTypeId()){
+                articleStatusList.add(articleStatuses.get(i));
+            }
         }
-        return articlesRepository.findByTypeIdOrderByCommentCountDesc(id);
+        return paixuComment(articleStatusList);
     }
     @Override
     public ResponseUtil releaseArticle(Articles article) {
@@ -141,34 +151,32 @@ public class ArticleServiceImpl implements ArticleService {
         return new ResponseUtil(0,"add new article",articlesRepository.save(articles));
     }
     @Override
-    public List<Articles> getFollowArticle(Integer id) {
+    public List<ArticleStatus> getFollowArticle(Integer id) {
         return getList(id);
     }
 
     @Override
-    public List<Articles> getFollowTime(Integer id) {
-        List<Articles>articlesList=new ArrayList<>();
-        articlesList.addAll(getList(id));
-        Collections.sort(articlesList, new Comparator<Articles>() {
+    public List<ArticleStatus> getFollowTime(Integer id) {
+        List<ArticleStatus>articleStatusList=getList(id);
+        Collections.sort(articleStatusList, new Comparator<ArticleStatus>() {
             @Override
-            public int compare(Articles o1, Articles o2) {
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
                 return o2.getCreateTime().compareTo(o1.getCreateTime());
             }
         });
-        return articlesList;
+        return articleStatusList;
     }
 
     @Override
-    public List<Articles> getFollowComment(Integer id) {
-        List<Articles>articlesList=new ArrayList<>();
-        articlesList.addAll(getList(id));
-        Collections.sort(articlesList, new Comparator<Articles>() {
+    public List<ArticleStatus> getFollowComment(Integer id) {
+        List<ArticleStatus>articleStatusList=getList(id);
+        Collections.sort(articleStatusList, new Comparator<ArticleStatus>() {
             @Override
-            public int compare(Articles o1, Articles o2) {
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
                 return o2.getCommentCount().compareTo(o1.getCommentCount());
             }
         });
-        return articlesList;
+        return articleStatusList;
     }
 
     @Override
@@ -182,9 +190,114 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Articles> queryArticle(String articleTitle) {
-        List<Articles>articlesList=articlesRepository.queryAticleList(articleTitle);
-        return articlesList;
+    public List<ArticleStatus> queryArticle(SearchUser searchUser) {
+        List<Articles>articlesList=articlesRepository.queryAticleList(searchUser.getKey());
+        List<ArticleStatus>articleStatuses=getArticleStatus(searchUser.getUserId());
+        List<ArticleStatus>articleStatusList=new ArrayList<>();
+        for (int i=0;i<articlesList.size();i++){
+            for (int j=0;j<articleStatuses.size();j++){
+                if (articlesList.get(i).getArticleId()==articleStatuses.get(j).getArticleId()){
+                    articleStatusList.add(articleStatuses.get(j));
+                }
+            }
+        }
+        return articleStatusList;
+    }
+
+    @Override
+    public ResponseUtil getSomeOneArticlesbytime(Integer userId) {
+        List<ArticleStatus>articleStatusList=getSomeOneArticleStatus(userId);
+        Collections.sort(articleStatusList, new Comparator<ArticleStatus>() {
+            @Override
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                return o2.getCreateTime().compareTo(o1.getCreateTime());
+            }
+        });
+        return new ResponseUtil(0,"get someone article by time",articleStatusList);
+    }
+
+    @Override
+    public ResponseUtil getSomeOneArticlesbylike(Integer userId) {
+       List<ArticleStatus>articleStatusList=getSomeOneArticleStatus(userId);
+        Collections.sort(articleStatusList, new Comparator<ArticleStatus>() {
+            @Override
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                return o2.getLikeCount().compareTo(o1.getLikeCount());
+            }
+        });
+        return new ResponseUtil(0,"get someone article by time",articleStatusList);
+    }
+
+    @Override
+    public ResponseUtil getSomeOneLikeArticles(Integer userId) {
+        List<ArticleLike>articleLikeList=likeRepository.findArticleLikeByUserId(userId);
+        List<ArticleStatus>articleStatusList=new ArrayList<>();
+        for (int i=0;i<articleLikeList.size();i++){
+            Articles articles=articlesRepository.findArticlesByArticleId(articleLikeList.get(i).getArticleId());
+            List<ArticleLike>articleLikes=likeRepository.findArticleLikeByArticleId(articleLikeList.get(i).getArticleId());
+            ArticleStatus articleStatus=new ArticleStatus(articles.getArticleId(),articles.getArticleTitle(),
+                    articles.getArticleContent(),articles.getArticleAuthor(),articles.getArticlePic(),
+                    articles.getAuthorAvatar(),articles.getCommentCount(),articleLikes.size(), articles.getUsersId(), articles.getLabelId(),
+                    articles.getCreateTime(), articles.getTypeId(),1);
+            articleStatusList.add(articleStatus);
+        }
+        return new ResponseUtil(0,"get someone like articles",articleStatusList);
+    }
+
+    @Override
+    public ResponseUtil getOtherArticleByTime(UserUser userUser) {
+        List<ArticleStatus>articleStatusList=getArticleStatus(userUser.getUserId());
+        List<ArticleStatus>articleStatuses=new ArrayList<>();
+        for (int i=0;i<articleStatusList.size();i++){
+            if (articleStatusList.get(i).getUsersId()==userUser.getConcerneduserId()){
+                articleStatuses.add(articleStatusList.get(i));
+            }
+        }
+        Collections.sort(articleStatuses, new Comparator<ArticleStatus>() {
+            @Override
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                return o2.getCreateTime().compareTo(o1.getCreateTime());
+            }
+        });
+        return new ResponseUtil(0,"get other articles",articleStatuses);
+    }
+
+    @Override
+    public ResponseUtil getOtherArticleByLike(UserUser userUser) {
+        List<ArticleStatus>articleStatusList=getArticleStatus(userUser.getUserId());
+        List<ArticleStatus>articleStatuses=new ArrayList<>();
+        for (int i=0;i<articleStatusList.size();i++){
+            if (articleStatusList.get(i).getUsersId()==userUser.getConcerneduserId()){
+                articleStatuses.add(articleStatusList.get(i));
+            }
+        }
+        Collections.sort(articleStatuses, new Comparator<ArticleStatus>() {
+            @Override
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                return o2.getLikeCount().compareTo(o1.getLikeCount());
+            }
+        });
+
+        return new ResponseUtil(0,"get other articles",articleStatuses);
+    }
+
+    @Override
+    public ResponseUtil getOtherLikeArticles(UserUser userUser) {
+        List<ArticleStatus>articleStatusList=getArticleStatus(userUser.getUserId());
+        List<ArticleStatus>articleStatuses=new ArrayList<>();
+        List<ArticleLike>articleLikeList=likeRepository.findArticleLikeByUserId(userUser.getConcerneduserId());
+        if (articleLikeList.size()>0){
+            for (int i=0;i<articleStatusList.size();i++){
+                for (int j=0;j<articleLikeList.size();j++){
+                    if (articleStatusList.get(i).getArticleId()==articleLikeList.get(j).getArticleId()){
+                        articleStatuses.add(articleStatusList.get(i));
+                    }
+                }
+            }
+        }else {
+            articleStatuses=null;
+        }
+        return new ResponseUtil(0,"get Other Like Articles",articleStatuses);
     }
 
     //简单上传，使用默认策略，只需要设置上传的空间名就可以了
@@ -227,22 +340,107 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
     //遍历List
-    public List<Articles>getList(Integer id){
-        List<ConcernUser>concernUserList=concernRepository.findAllByUserId(id);
-        List<Articles>articles=new ArrayList<>();
+    public List<ArticleStatus>getList(Integer userId){
+        List<ConcernUser>concernUserList=concernRepository.findAllByUserId(userId);
+        List<ArticleStatus>articleStatusList1=getArticleStatus(userId);
+        List<ArticleStatus>articleStatusList=new ArrayList<>();
         for (int i=0;i<concernUserList.size();i++){
-            List<Articles>articlesList=new ArrayList<>();
-            articlesList=articlesRepository.findAllByLabelId(concernUserList.get(i).getLabelId());
-            articles.addAll(articlesList);
+            for (int j=0;j<articleStatusList1.size();j++){
+                if (articleStatusList1.get(j).getLabelId()==concernUserList.get(i).getLabelId()){
+                    articleStatusList.add(articleStatusList1.get(j));
+                }
+            }
         }
-        for(int j=0;j<articles.size();j++){
-            articles.get(j).setCommentCount(getCount(articles.get(j).getArticleId()));
-        }
-        return articles;
+        return articleStatusList;
     }
     //给文章评论数赋值
     public int getCount(Integer articleid){
         return commentRepository.findArticleCommentsByArticleId(articleid).size()
                 +commentChildRepository.findCommentChildrenByArticleId(articleid).size();
+    }
+
+    public List<ArticleStatus>getArticleStatus(Integer id){
+        List<Articles>articlesList=articlesRepository.findAll();//查询所有文章
+        List<ArticleLike>articleLikeList=likeRepository.findArticleLikeByUserId(id);
+        List<ArticleStatus>articleStatusList=new ArrayList<>();
+
+        for (int i=0;i<articlesList.size();i++){
+            Articles articles=articlesList.get(i);
+            int status=0;
+            List<ArticleLike>articleLikes=likeRepository.findArticleLikeByArticleId(articles.getArticleId());
+            for (int j=0;j<articleLikeList.size();j++){
+                if (articleLikeList.get(j).getArticleId()==articlesList.get(i).getArticleId()){
+                    status=1;
+                }
+            }
+            ArticleStatus articleStatus=new ArticleStatus(articles.getArticleId(),articles.getArticleTitle(),
+                    articles.getArticleContent(),articles.getArticleAuthor(),articles.getArticlePic(),
+                    articles.getAuthorAvatar(),articles.getCommentCount(),articleLikes.size(), articles.getUsersId(), articles.getLabelId(),
+                    articles.getCreateTime(), articles.getTypeId(),status);
+            articleStatusList.add(articleStatus);
+        }
+        return articleStatusList;
+    }
+
+    public List<ArticleStatus> paixuTime(List<ArticleStatus>articleStatusList){
+
+        Collections.sort(articleStatusList, new Comparator<ArticleStatus>(){
+            /*
+             * int compare(Student o1, Student o2) 返回一个基本类型的整型，
+             * 返回负数表示：o1 小于o2，
+             * 返回0 表示：o1和o2相等，
+             * 返回正数表示：o1大于o2。
+             */
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                //进行降序排列
+                //将date类型的转换为String类型，然后截取和库中相同的长度，再转换为int；这样的截取方式已比对过，无差异
+                Integer dateValue1 = Integer.valueOf(String.valueOf(o1.getCreateTime().getTime()).substring(0, 10));
+                Integer dataValue2 = Integer.valueOf(String.valueOf(o2.getCreateTime().getTime()).substring(0,10));
+                if(dateValue1 < dataValue2){
+                    return 1;
+                }
+                if(dateValue1 == dataValue2){
+                    return 0;
+                }
+                return -1;
+            }
+        });
+
+        return articleStatusList;
+    }
+
+    public List<ArticleStatus> paixuComment(List<ArticleStatus>articleStatusList){
+
+        Collections.sort(articleStatusList, new Comparator<ArticleStatus>(){
+            /*
+             * int compare(Student o1, Student o2) 返回一个基本类型的整型，
+             * 返回负数表示：o1 小于o2，
+             * 返回0 表示：o1和o2相等，
+             * 返回正数表示：o1大于o2。
+             */
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                //进行降序排列
+                if(o1.getCommentCount() < o2.getCommentCount()){
+                    return 1;
+                }
+                if(o1.getCommentCount() == o2.getCommentCount()){
+                    return 0;
+                }
+                return -1;
+            }
+        });
+
+        return articleStatusList;
+    }
+
+    public List<ArticleStatus> getSomeOneArticleStatus(Integer userId){
+        List<ArticleStatus>articleStatusList=getArticleStatus(userId);
+        List<ArticleStatus>articleStatuses=new ArrayList<>();
+        for (int i=0;i<articleStatusList.size();i++){
+            if (articleStatusList.get(i).getUsersId()==userId){
+                articleStatuses.add(articleStatusList.get(i));
+            }
+        }
+       return articleStatuses;
     }
 }

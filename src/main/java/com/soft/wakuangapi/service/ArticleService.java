@@ -1,27 +1,39 @@
 package com.soft.wakuangapi.service;
 
-import com.soft.wakuangapi.entity.Articles;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.utils.ResponseUtil;
 import com.soft.wakuangapi.vo.ArticleVo;
 
 import java.util.List;
 
 public interface ArticleService {
-    List<Articles>findTypearticle(Integer id);
+    List<ArticleStatus>findTypearticle(UserType userType);
 
-    List<Articles>findbytime(Integer id);
+    List<ArticleStatus>findbytime(UserType userType);
 
-    List<Articles>findbycomment(Integer id);
+    List<ArticleStatus>findbycomment(UserType userType);
+
+    List<ArticleStatus>getFollowArticle(Integer id);
+
+    List<ArticleStatus>getFollowTime(Integer id);
+
+    List<ArticleStatus>getFollowComment(Integer id);
 
     ResponseUtil releaseArticle(Articles article);
 
-    List<Articles>getFollowArticle(Integer id);
-
-    List<Articles>getFollowTime(Integer id);
-
-    List<Articles>getFollowComment(Integer id);
-
     ArticleVo getoneArticle(Integer id);
 
-    List<Articles>queryArticle(String articleTitle);
+    List<ArticleStatus>queryArticle(SearchUser searchUser);
+
+    ResponseUtil getSomeOneArticlesbytime(Integer userId);
+
+    ResponseUtil getSomeOneArticlesbylike(Integer userId);
+
+    ResponseUtil getSomeOneLikeArticles(Integer userId);
+
+    ResponseUtil getOtherArticleByTime(UserUser userUser);
+
+    ResponseUtil getOtherArticleByLike(UserUser userUser);
+
+    ResponseUtil getOtherLikeArticles(UserUser userUser);
 }

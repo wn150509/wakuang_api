@@ -8,8 +8,8 @@ import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import com.soft.wakuangapi.dao.SysUserRepository;
-import com.soft.wakuangapi.entity.LoginUser;
-import com.soft.wakuangapi.entity.SysUser;
+import com.soft.wakuangapi.dao.UserConcernRepository;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.service.SysUserService;
 import com.soft.wakuangapi.utils.QiNiuFileUpUtil;
 import com.soft.wakuangapi.utils.ResponseUtil;
@@ -21,6 +21,7 @@ import sun.misc.BASE64Decoder;
 
 import javax.annotation.Resource;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +45,9 @@ public class SysUserServiceImpl implements SysUserService {
 
     @Resource
     private SysUserRepository sysUserRepository;
+    @Resource
+    private UserConcernRepository userConcernRepository;
+
     @Override
     public ResponseUtil userLogin(LoginUser loginUser) {
         SysUser sysUser = sysUserRepository.findSysUserByEmail(loginUser.getEmail());
@@ -204,8 +208,35 @@ public class SysUserServiceImpl implements SysUserService {
     }
 
     @Override
-    public List<SysUser> querySysUserList(String userName) {
-        List<SysUser>sysUserList=sysUserRepository.querySysUserList(userName);
-        return sysUserList;
+    public List<UserStatus> querySysUserList(SearchUser searchUser) {
+        List<SysUser>querySysUserList=sysUserRepository.querySysUserList(searchUser.getKey());//根据关键字key获取一组用户list
+
+        //以下根据当前用户id得到一组用户list的完整信息
+        List<SysUser>userList=sysUserRepository.findAll();//获取表中所有用户信息
+        List<UserUser>userUsers=userConcernRepository.findAllByUserId(searchUser.getUserId());//根据userId获取被关注用户ID组
+        List<UserStatus>userStatuses0=new ArrayList<>();
+        for (int i=0;i<userList.size();i++){//遍历所有用户
+            SysUser sysUser=userList.get(i);
+            int status=0;
+            for (int j=0;j<userUsers.size();j++){
+                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                    status=1;
+                }
+            }
+            UserStatus userStatus=new UserStatus(sysUser.getUserId(),
+                    sysUser.getUserAvatar(),sysUser.getUserName(),
+                    sysUser.getDescription(),sysUser.getUserCompany(),sysUser.getUserPosition(),status);
+            userStatuses0.add(userStatus);
+        }
+        List<UserStatus>userStatuses=new ArrayList<>();
+        for (int i=0;i<userStatuses0.size();i++){
+            for (int j=0;j<querySysUserList.size();j++){
+                if (userStatuses0.get(i).getUserId()==querySysUserList.get(j).getUserId()){
+                    userStatuses.add(userStatuses0.get(i));
+                }
+            }
+        }
+
+        return userStatuses;
     }
 }

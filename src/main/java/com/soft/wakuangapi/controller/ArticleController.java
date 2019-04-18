@@ -1,10 +1,9 @@
 package com.soft.wakuangapi.controller;
 
-import com.soft.wakuangapi.entity.ArticleComment;
-import com.soft.wakuangapi.entity.Articles;
-import com.soft.wakuangapi.entity.SysUser;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.service.ArticleService;
 import com.soft.wakuangapi.service.CommentService;
+import com.soft.wakuangapi.service.LikeService;
 import com.soft.wakuangapi.utils.ResponseUtil;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -17,11 +16,9 @@ public class ArticleController {
     private ArticleService articleService;
     @Resource
     private CommentService commentService;
+    @Resource
+    private LikeService likeService;
 
-    @RequestMapping(value = "/type/{id}",method = RequestMethod.GET)
-    public ResponseUtil getTypeArticles(@PathVariable Integer id){
-        return new ResponseUtil(0,"get type",articleService.findTypearticle(id));
-    }
     @RequestMapping(value = "/type",method = RequestMethod.POST)
     public ResponseUtil getFollowArticles(@RequestBody SysUser sysUser){
         return new ResponseUtil(0,"get type",articleService.getFollowArticle(sysUser.getUserId()));
@@ -34,13 +31,17 @@ public class ArticleController {
     public ResponseUtil getFollowComment(@RequestBody SysUser sysUser){
         return new ResponseUtil(0,"get type",articleService.getFollowComment(sysUser.getUserId()));
     }
-    @RequestMapping(value = "/type/{id}/time",method = RequestMethod.GET)
-    public ResponseUtil getTypetime(@PathVariable Integer id){
-        return new ResponseUtil(0,"get type",articleService.findbytime(id));
+    @RequestMapping(value = "/typeid",method = RequestMethod.POST)
+    public ResponseUtil getTypeArticles(@RequestBody UserType userType){
+        return new ResponseUtil(0,"get type",articleService.findTypearticle(userType));
     }
-    @RequestMapping(value = "/type/{id}/comment",method = RequestMethod.GET)
-    public ResponseUtil getTypecomment(@PathVariable Integer id){
-        return new ResponseUtil(0,"get type",articleService.findbycomment(id));
+    @RequestMapping(value = "/typeid/time",method = RequestMethod.POST)
+    public ResponseUtil getTypetime(@RequestBody UserType userType){
+        return new ResponseUtil(0,"get type",articleService.findbytime(userType));
+    }
+    @RequestMapping(value = "/typeid/comment",method = RequestMethod.POST)
+    public ResponseUtil getTypecomment(@RequestBody UserType userType){
+        return new ResponseUtil(0,"get type",articleService.findbycomment(userType));
     }
 
     @RequestMapping(value = "/add",method = RequestMethod.POST)
@@ -69,7 +70,52 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "/queryarticle",method = RequestMethod.POST)
-    public ResponseUtil queryarticle(@RequestBody Articles articles){
-        return new ResponseUtil(0,"query article",articleService.queryArticle(articles.getArticleTitle()));
+    public ResponseUtil queryarticle(@RequestBody SearchUser searchUser){
+        return new ResponseUtil(0,"query article",articleService.queryArticle(searchUser));
+    }
+
+    @RequestMapping(value = "/selfArticlesbytime",method = RequestMethod.POST)
+    public ResponseUtil getSelfArticlestime(@RequestBody SysUser sysUser){
+        return articleService.getSomeOneArticlesbytime(sysUser.getUserId());
+    }
+
+    @RequestMapping(value = "/selfArticlesbylike",method = RequestMethod.POST)
+    public ResponseUtil getSelfArticleslike(@RequestBody SysUser sysUser){
+        return articleService.getSomeOneArticlesbylike(sysUser.getUserId());
+    }
+
+    @RequestMapping(value = "/insertlike",method = RequestMethod.POST)
+    public ResponseUtil insertLikeArticle(@RequestBody ArticleLike articleLike){
+        return likeService.insertLikeArticle(articleLike);
+    }
+
+    @RequestMapping(value = "/deletelike",method = RequestMethod.POST)
+    public ResponseUtil deleteLikeArticle(@RequestBody ArticleLike articleLike){
+        return likeService.deleteLikeArticle(articleLike);
+    }
+
+    @RequestMapping(value = "/articlestatus",method = RequestMethod.POST)
+    public ResponseUtil getAllArticleStatus(@RequestBody SysUser sysUser){
+        return new ResponseUtil(0,"get all article status",likeService.getArticleStatus(sysUser.getUserId()));
+    }
+
+    @RequestMapping(value = "/selflikearticles",method = RequestMethod.POST)
+    public ResponseUtil getSomeOneLikeArticles(@RequestBody SysUser sysUser){
+        return articleService.getSomeOneLikeArticles(sysUser.getUserId());
+    }
+
+    @RequestMapping(value = "/otherarticlesbytime",method = RequestMethod.POST)
+    public ResponseUtil getOtherArticlesByTime(@RequestBody UserUser userUser){
+        return articleService.getOtherArticleByTime(userUser);
+    }
+
+    @RequestMapping(value = "/otherarticlesbylike",method = RequestMethod.POST)
+    public ResponseUtil getOtherArticlesByLike(@RequestBody UserUser userUser){
+        return articleService.getOtherArticleByLike(userUser);
+    }
+
+    @RequestMapping(value = "/otherlikearticles",method = RequestMethod.POST)
+    public ResponseUtil getOtherLikeArticles(@RequestBody UserUser userUser){
+        return articleService.getOtherLikeArticles(userUser);
     }
 }

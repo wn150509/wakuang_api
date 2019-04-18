@@ -1,7 +1,9 @@
 package com.soft.wakuangapi.service;
 
 import com.soft.wakuangapi.entity.LoginUser;
+import com.soft.wakuangapi.entity.SearchUser;
 import com.soft.wakuangapi.entity.SysUser;
+import com.soft.wakuangapi.entity.UserStatus;
 import com.soft.wakuangapi.utils.ResponseUtil;
 
 import java.util.List;
@@ -19,5 +21,5 @@ public interface SysUserService {
 
     ResponseUtil updateUser(SysUser sysUser);
 
-    List<SysUser>querySysUserList(String userName);
+    List<UserStatus>querySysUserList(SearchUser searchUser);
 }
