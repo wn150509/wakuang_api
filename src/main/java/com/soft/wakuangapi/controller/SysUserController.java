@@ -68,9 +68,14 @@ public class SysUserController {
         return new ResponseUtil(0,"delete userConcern",userConcernService.deleteUserConcern(userUser));
     }
 
-    @RequestMapping(value = "/concern",method = RequestMethod.POST)
+    @RequestMapping(value = "/getUser",method = RequestMethod.POST)
     public ResponseUtil getUserStatus(@RequestBody UserUser userUser){
-        return new ResponseUtil(0,"get user concern",userConcernService.getUserConcern(userUser));
+        return new ResponseUtil(0,"get user",userConcernService.getUser(userUser));
+    }
+
+    @RequestMapping(value = "/concern",method = RequestMethod.POST)
+    public ResponseUtil getUserConcern(@RequestBody UserUser userUser){
+        return userConcernService.getUserConcerner(userUser);
     }
 
     @RequestMapping(value = "/userConcern",method = RequestMethod.POST)

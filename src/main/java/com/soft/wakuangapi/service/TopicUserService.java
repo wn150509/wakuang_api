@@ -14,5 +14,5 @@ public interface TopicUserService {
 
     ResponseUtil deleteTopicUser(TopicUser topicUser);
 
-    List<Topics>getConcernedTopics(Integer userId);
+    List<TopicStatus>getConcernedTopics(Integer userId);
 }

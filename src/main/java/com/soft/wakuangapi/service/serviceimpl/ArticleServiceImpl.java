@@ -363,7 +363,6 @@ public class ArticleServiceImpl implements ArticleService {
         List<Articles>articlesList=articlesRepository.findAll();//查询所有文章
         List<ArticleLike>articleLikeList=likeRepository.findArticleLikeByUserId(id);
         List<ArticleStatus>articleStatusList=new ArrayList<>();
-
         for (int i=0;i<articlesList.size();i++){
             Articles articles=articlesList.get(i);
             int status=0;

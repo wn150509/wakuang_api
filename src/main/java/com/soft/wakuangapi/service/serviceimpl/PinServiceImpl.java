@@ -4,16 +4,12 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
-import com.soft.wakuangapi.dao.PinRepository;
-import com.soft.wakuangapi.dao.PinconcernRepository;
-import com.soft.wakuangapi.dao.TopicRepository;
-import com.soft.wakuangapi.entity.PinStatus;
-import com.soft.wakuangapi.entity.PinUser;
-import com.soft.wakuangapi.entity.Pins;
-import com.soft.wakuangapi.entity.UserTopicPin;
+import com.soft.wakuangapi.dao.*;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.service.PinService;
 import com.soft.wakuangapi.utils.QiNiuFileUpUtil;
 import com.soft.wakuangapi.utils.ResponseUtil;
+import com.soft.wakuangapi.vo.PinVo;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -27,10 +23,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.Collections;
 
 @Service
 public class PinServiceImpl implements PinService{
@@ -52,6 +46,14 @@ public class PinServiceImpl implements PinService{
     private PinRepository pinRepository;
     @Resource
     private PinconcernRepository pinconcernRepository;
+    @Resource
+    private UserConcernRepository userConcernRepository;
+    @Resource
+    private TopicUserRepository topicUserRepository;
+    @Resource
+    private SysUserRepository sysUserRepository;
+    @Resource
+    private TopicRepository topicRepository;
 
     @Override
     public ResponseUtil releasePin(Pins pin1) {
@@ -115,24 +117,128 @@ public class PinServiceImpl implements PinService{
     }
 
     @Override
-    public ResponseUtil getPinsConcerned(UserTopicPin userTopicPin) {
-        List<Pins>pinsList=pinRepository.findAll();//遍历所有pin
+    public ResponseUtil getPinsByLike(UserTopicPin userTopicPin) {
+        List<PinStatus>pinStatusList=getSomeOnePinStatus(userTopicPin.getUserId());
+        List<PinVo>pinVoList=getPinVo(pinStatusList,userTopicPin);
+        Collections.sort(pinVoList, new Comparator<PinVo>() {
+            @Override
+            public int compare(PinVo o1, PinVo o2) {
+                return o2.getPinStatus().getLikeCount().compareTo(o1.getPinStatus().getLikeCount());
+            }
+        });
+        return new ResponseUtil(0,"get pins by like",pinVoList);
+    }
+
+    @Override
+    public ResponseUtil getPinsByConcerned(UserTopicPin userTopicPin) {
+        List<PinStatus>pinStatusByUser=new ArrayList<>();
+        List<PinStatus>pinStatusByTopic=new ArrayList<>();
         List<PinStatus>pinStatusList=new ArrayList<>();
-        List<PinUser>pinUserList=pinconcernRepository.findPinUsersByUserId(userTopicPin.getUserId());
-        for (int i=0;i<pinsList.size();i++){
-            int status=0;
-            Pins pins=pinsList.get(i);
-            List<PinUser>pinUsers=pinconcernRepository.findPinUsersByPinId(pins.getPinId());
-            for (int j=0;j<pinUserList.size();j++){
-                if (pins.getPinId()==pinUserList.get(j).getPinId()){
-                    status=1;
+        List<PinVo>pinVoList=new ArrayList<>();
+        List<UserUser>userUserList=userConcernRepository.findAllByUserId(userTopicPin.getUserId());
+        List<TopicUser>topicUserList=topicUserRepository.findAllByUserId(userTopicPin.getUserId());
+        List<PinStatus>pinStatuses=getSomeOnePinStatus(userTopicPin.getUserId());
+        if (userUserList.size()>0){
+            for (int i=0;i<pinStatuses.size();i++){
+                for (int j=0;j<userUserList.size();j++){
+                    if (pinStatuses.get(i).getUsersId()==userUserList.get(j).getConcerneduserId()){
+                        pinStatusByUser.add(pinStatuses.get(i));
+                    }
                 }
-                PinStatus pinStatus=new PinStatus(pins.getPinId(),pins.getPinContent(),pins.getPinUrl(),pins.getCommentCount(),
-                        pinUsers.size(),pins.getUsersId(),pins.getCreateTime(),pins.getTopicId(),status);
-                pinStatusList.add(pinStatus);
+            }
+        }else {
+            pinStatusByUser=null;
+        }
+        if (topicUserList.size()>0){
+            for (int i=0;i<pinStatuses.size();i++){
+                for (int j=0;j<topicUserList.size();j++){
+                    if (pinStatuses.get(i).getTopicId()==topicUserList.get(j).getTopicId()){
+                        pinStatusByTopic.add(pinStatuses.get(i));
+                    }
+                }
+            }
+        }else {
+            pinStatusByTopic=null;
+        }
+
+        if ((pinStatusByUser==null)&&(pinStatusByTopic==null)){
+            pinStatusList=null;
+        }else {
+            if (pinStatusByTopic==null){
+                pinStatusList=pinStatusByUser;
+            }else {
+                if (pinStatusByUser==null){
+                    pinStatusList=pinStatusByTopic;
+                }else {
+                    pinStatusList=pinStatusByTopic;
+                    for (int i=0;i<pinStatusByTopic.size();i++){
+                        for (int j=0;j<pinStatusByUser.size();j++){
+                            if (pinStatusByTopic.get(i).getPinId()!=pinStatusByUser.get(j).getPinId()){
+                                pinStatusList.add(pinStatusByUser.get(j));
+                            }
+                        }
+                    }
+                }
             }
         }
-        return new ResponseUtil(0,"get someone pinStatus",pinStatusList);
+        if (pinStatusList!=null){
+            pinVoList=getPinVo(pinStatusList,userTopicPin);
+            Collections.sort(pinVoList, new Comparator<PinVo>() {
+                @Override
+                public int compare(PinVo o1, PinVo o2) {
+                    return o2.getPinStatus().getCreateTime().compareTo(o1.getPinStatus().getCreateTime());
+                }
+            });
+        }
+        return new ResponseUtil(0,"get Pins By Concerned",pinVoList);
+    }
+
+    @Override
+    public ResponseUtil insertPinsConcerned(PinUser pinUser) {
+        return new ResponseUtil(0,"insert Pins Concerned",pinconcernRepository.save(pinUser));
+    }
+
+    @Override
+    public ResponseUtil deletePinsConcerned(PinUser pinUser) {
+        return new ResponseUtil(0,"delete Pins Concerned",pinconcernRepository.deletePinUserByPinIdAndUserId(pinUser.getPinId(),pinUser.getUserId()));
+    }
+
+    @Override
+    public ResponseUtil getUserPins(UserTopicPin userTopicPin) {
+        List<PinStatus>pinStatusList=getSomeOnePinStatus(userTopicPin.getUserId());
+        List<PinVo>pinVoList=getPinVo(pinStatusList,userTopicPin);
+        List<PinVo>pinVos=new ArrayList<>();
+        for (int i=0;i<pinVoList.size();i++){
+            if (userTopicPin.getUserId()==pinVoList.get(i).getPinStatus().getUsersId()){
+                pinVos.add(pinVoList.get(i));
+            }
+        }
+        Collections.sort(pinVos, new Comparator<PinVo>() {
+            @Override
+            public int compare(PinVo o1, PinVo o2) {
+                return o2.getPinStatus().getCreateTime().compareTo(o1.getPinStatus().getCreateTime());
+            }
+        });
+        return new ResponseUtil(0,"get user pins",pinVos);
+    }
+
+    @Override
+    public ResponseUtil getOtherUserPins(UserTopicPin userTopicPin) {
+        List<PinStatus>pinStatusList=getSomeOnePinStatus(userTopicPin.getUserId());
+        List<PinVo>pinVoList=getPinVo(pinStatusList,userTopicPin);
+        List<PinVo>pinVos=new ArrayList<>();
+        for (int i=0;i<pinVoList.size();i++){
+            if (userTopicPin.getConcerneduserId()==pinVoList.get(i).getPinStatus().getUsersId()){
+                pinVos.add(pinVoList.get(i));
+            }
+        }
+        Collections.sort(pinVos, new Comparator<PinVo>() {
+            @Override
+            public int compare(PinVo o1, PinVo o2) {
+                return o2.getPinStatus().getCreateTime().compareTo(o1.getPinStatus().getCreateTime());
+            }
+        });
+        return new ResponseUtil(0,"get OtherUser pins",pinVos);
     }
 
 
@@ -174,5 +280,70 @@ public class PinServiceImpl implements PinService{
         {
             return false;
         }
+    }
+
+    //以登陆者角度过滤所有沸点
+    public List<PinStatus>getSomeOnePinStatus(Integer userId){
+        List<Pins>pinsList=pinRepository.findAll();//遍历所有pin
+        List<PinStatus>pinStatusList=new ArrayList<>();
+        List<PinUser>pinUserList=pinconcernRepository.findPinUsersByUserId(userId);
+        for (int i=0;i<pinsList.size();i++){
+            int status=0;
+            Pins pins=pinsList.get(i);
+            List<PinUser>pinUsers=pinconcernRepository.findPinUsersByPinId(pins.getPinId());
+            for (int j=0;j<pinUserList.size();j++){
+                if (pins.getPinId()==pinUserList.get(j).getPinId()){
+                    status=1;
+                }
+            }
+            PinStatus pinStatus=new PinStatus(pins.getPinId(),pins.getPinContent(),pins.getPinUrl(),pins.getCommentCount(),
+                    pinUsers.size(),pins.getUsersId(),pins.getCreateTime(),pins.getTopicId(),status);
+            pinStatusList.add(pinStatus);
+        }
+        return pinStatusList;
+    }
+
+    //获取某个用户状态
+    public UserStatus getUserStatus(Integer userId,Integer concernUserId){
+        //以下根据当前用户id得到一组用户list的完整信息
+        List<SysUser>userList=sysUserRepository.findAll();//获取表中所有用户信息
+        List<UserUser>userUsers=userConcernRepository.findAllByUserId(userId);//根据userId获取被关注用户ID组
+        List<UserStatus>userStatuses0=new ArrayList<>();
+        for (int i=0;i<userList.size();i++){//遍历所有用户
+            SysUser sysUser=userList.get(i);
+            int status=0;
+            for (int j=0;j<userUsers.size();j++){
+                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                    status=1;
+                }
+            }
+            UserStatus userStatus=new UserStatus(sysUser.getUserId(),
+                    sysUser.getUserAvatar(),sysUser.getUserName(),
+                    sysUser.getDescription(),sysUser.getUserCompany(),sysUser.getUserPosition(),status);
+            userStatuses0.add(userStatus);
+        }
+        UserStatus userStatus=new UserStatus();
+        for (int i=0;i<userStatuses0.size();i++){
+            if (userStatuses0.get(i).getUserId()==concernUserId){
+                 userStatus=userStatuses0.get(i);
+            }
+        }
+        return userStatus;
+    }
+
+    //遍历数组获取PinVo
+    public List<PinVo>getPinVo(List<PinStatus>pinStatusList,UserTopicPin userTopicPin){
+        List<PinVo>pinVoList=new ArrayList<>();
+        for (int i=0 ;i<pinStatusList.size();i++){
+            PinVo pinVo=new PinVo();
+            UserStatus userStatus=getUserStatus(userTopicPin.getUserId(),pinStatusList.get(i).getUsersId());
+            Topics topics=topicRepository.findTopicsByTopicId(pinStatusList.get(i).getTopicId());
+            pinVo.setUserStatus(userStatus);
+            pinVo.setPinStatus(pinStatusList.get(i));
+            pinVo.setTopics(topics);
+            //注入到list中
+            pinVoList.add(pinVo);
+        }
+        return pinVoList;
     }
 }

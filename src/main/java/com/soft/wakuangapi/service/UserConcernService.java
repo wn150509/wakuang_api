@@ -8,7 +8,9 @@ import com.soft.wakuangapi.utils.ResponseUtil;
 import java.util.List;
 
 public interface UserConcernService {
-    UserStatus getUserConcern(UserUser userUser);
+    UserStatus getUser(UserUser userUser);
+
+    ResponseUtil getUserConcerner(UserUser userUser);
 
     ResponseUtil insertUserConcern(UserUser userUser);
 

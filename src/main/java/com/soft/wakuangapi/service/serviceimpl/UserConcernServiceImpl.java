@@ -21,7 +21,7 @@ public class UserConcernServiceImpl implements UserConcernService{
     private SysUserRepository sysUserRepository;
 
     @Override
-    public UserStatus getUserConcern(UserUser userUser) {
+    public UserStatus getUser(UserUser userUser) {
         List<UserStatus>userStatuses=getSomeOneUserStatus(userUser.getUserId());
         UserStatus userStatus1=new UserStatus();
         for (int i=0;i<userStatuses.size();i++){
@@ -30,6 +30,13 @@ public class UserConcernServiceImpl implements UserConcernService{
             }
         }
         return userStatus1;
+    }
+
+    @Override
+    public ResponseUtil getUserConcerner(UserUser userUser) {
+        List<UserStatus>userStatusList=getSomeOneUserStatus(userUser.getUserId());
+
+        return new ResponseUtil(0,"get user concerner",userStatusList);
     }
 
     @Override
