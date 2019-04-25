@@ -51,6 +51,8 @@ public class ArticleServiceImpl implements ArticleService {
     private SysUserRepository sysUserRepository;
     @Resource
     private CommentChildRepository commentChildRepository;
+    @Resource
+    private UserConcernRepository userConcernRepository;
 
     @Override
     public List<ArticleStatus> findTypearticle(UserType userType) {
@@ -61,6 +63,12 @@ public class ArticleServiceImpl implements ArticleService {
                 articleStatusList.add(articleStatuses.get(i));
             }
         }
+        Collections.sort(articleStatusList, new Comparator<ArticleStatus>() {
+            @Override
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                return o2.getLikeCount().compareTo(o1.getLikeCount());
+            }
+        });
         return articleStatusList;
     }
     @Override
@@ -152,7 +160,14 @@ public class ArticleServiceImpl implements ArticleService {
     }
     @Override
     public List<ArticleStatus> getFollowArticle(Integer id) {
-        return getList(id);
+        List<ArticleStatus>articleStatusList=getList(id);
+        Collections.sort(articleStatusList, new Comparator<ArticleStatus>() {
+            @Override
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                return o2.getLikeCount().compareTo(o1.getLikeCount());
+            }
+        });
+        return articleStatusList;
     }
 
     @Override
@@ -180,12 +195,22 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public ArticleVo getoneArticle(Integer articleid) {
-        Articles articles=articlesRepository.findArticlesByArticleId(articleid);
-        articles.setCommentCount(getCount(articleid));
-        articlesRepository.save(articles);
-        SysUser sysUser=sysUserRepository.findSysUserByUserId(articles.getUsersId());
-        ArticleVo articleVo=new ArticleVo(sysUser,articles);
+    public ArticleVo getoneArticle(ArticleLike articleLike) {
+        List<ArticleStatus>articleStatuses=getArticleStatus(articleLike.getUserId());
+        ArticleStatus articleStatus=new ArticleStatus();
+        for (int i=0;i<articleStatuses.size();i++){
+            if (articleLike.getArticleId()==articleStatuses.get(i).getArticleId()){
+                articleStatus=articleStatuses.get(i);
+            }
+        }
+        List<UserStatus>userStatuses=getSomeOneUserStatus(articleLike.getUserId());
+        UserStatus userStatus=new UserStatus();
+        for (int i=0;i<userStatuses.size();i++){
+            if (articleStatus.getUsersId()==userStatuses.get(i).getUserId()){
+                userStatus=userStatuses.get(i);
+            }
+        }
+        ArticleVo articleVo=new ArticleVo(userStatus,articleStatus);
         return articleVo;
     }
 
@@ -298,6 +323,34 @@ public class ArticleServiceImpl implements ArticleService {
             articleStatuses=null;
         }
         return new ResponseUtil(0,"get Other Like Articles",articleStatuses);
+    }
+
+    @Override
+    public ResponseUtil getRelativeArticles(ArticleLike articleLike) {
+        List<ArticleStatus>articleStatusList=getArticleStatus(articleLike.getUserId());
+        Articles articles=articlesRepository.findArticlesByArticleId(articleLike.getArticleId());
+        List<ArticleStatus>articleStatuses=new ArrayList<>();
+        List<ArticleStatus>articleStatusList1=new ArrayList<>();
+        for (int i=0;i<articleStatusList.size();i++){
+            ArticleStatus ar=articleStatusList.get(i);
+            if ((articles.getTypeId()==ar.getTypeId())&&(articles.getArticleId()!=ar.getArticleId())){
+                articleStatuses.add(ar);
+            }
+        }
+        Collections.sort(articleStatuses, new Comparator<ArticleStatus>() {
+            @Override
+            public int compare(ArticleStatus o1, ArticleStatus o2) {
+                return o2.getLikeCount().compareTo(o1.getLikeCount());
+            }
+        });
+        if (articleStatuses.size()<5){
+            articleStatusList1=articleStatuses;
+        }else {
+            for (int i=0;i<5;i++){
+                articleStatusList1.add(articleStatuses.get(i));
+            }
+        }
+        return new ResponseUtil(0,"get relative articles",articleStatusList1);
     }
 
     //简单上传，使用默认策略，只需要设置上传的空间名就可以了
@@ -441,5 +494,26 @@ public class ArticleServiceImpl implements ArticleService {
             }
         }
        return articleStatuses;
+    }
+
+    public List<UserStatus>getSomeOneUserStatus(Integer userId){
+        List<SysUser>userList=sysUserRepository.findAll();//获取表中所有用户信息
+        List<UserUser>userUsers=userConcernRepository.findAllByUserId(userId);//根据userId获取被关注用户ID组
+        List<UserStatus>userStatuses=new ArrayList<>();
+
+        for (int i=0;i<userList.size();i++){//遍历所有用户
+            SysUser sysUser=userList.get(i);
+            int status=0;
+            for (int j=0;j<userUsers.size();j++){
+                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                    status=1;
+                }
+            }
+            UserStatus userStatus=new UserStatus(sysUser.getUserId(),
+                    sysUser.getUserAvatar(),sysUser.getUserName(),
+                    sysUser.getDescription(),sysUser.getUserCompany(),sysUser.getUserPosition(),status);
+            userStatuses.add(userStatus);
+        }
+        return userStatuses;
     }
 }

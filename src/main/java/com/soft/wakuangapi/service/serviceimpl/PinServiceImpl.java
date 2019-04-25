@@ -131,13 +131,15 @@ public class PinServiceImpl implements PinService{
 
     @Override
     public ResponseUtil getPinsByConcerned(UserTopicPin userTopicPin) {
-        List<PinStatus>pinStatusByUser=new ArrayList<>();
-        List<PinStatus>pinStatusByTopic=new ArrayList<>();
-        List<PinStatus>pinStatusList=new ArrayList<>();
+        List<PinStatus>pinStatusByUser=new ArrayList<>();//关注的作者发布的沸点
+        List<PinStatus>pinStatusByTopic=new ArrayList<>();//关注的话题相关沸点
+        List<PinStatus>pinStatusList=new ArrayList<>();//最终数组
+        List<PinStatus>pinStatuses1=new ArrayList<>();//数组重复部分
         List<PinVo>pinVoList=new ArrayList<>();
-        List<UserUser>userUserList=userConcernRepository.findAllByUserId(userTopicPin.getUserId());
-        List<TopicUser>topicUserList=topicUserRepository.findAllByUserId(userTopicPin.getUserId());
+        List<UserUser>userUserList=userConcernRepository.findAllByUserId(userTopicPin.getUserId());//关注的作者
+        List<TopicUser>topicUserList=topicUserRepository.findAllByUserId(userTopicPin.getUserId());//关注的话题
         List<PinStatus>pinStatuses=getSomeOnePinStatus(userTopicPin.getUserId());
+        //获取关注作者沸点
         if (userUserList.size()>0){
             for (int i=0;i<pinStatuses.size();i++){
                 for (int j=0;j<userUserList.size();j++){
@@ -149,6 +151,7 @@ public class PinServiceImpl implements PinService{
         }else {
             pinStatusByUser=null;
         }
+        //获取关注话题沸点
         if (topicUserList.size()>0){
             for (int i=0;i<pinStatuses.size();i++){
                 for (int j=0;j<topicUserList.size();j++){
@@ -160,7 +163,7 @@ public class PinServiceImpl implements PinService{
         }else {
             pinStatusByTopic=null;
         }
-
+        //获取最终数组
         if ((pinStatusByUser==null)&&(pinStatusByTopic==null)){
             pinStatusList=null;
         }else {
@@ -170,13 +173,29 @@ public class PinServiceImpl implements PinService{
                 if (pinStatusByUser==null){
                     pinStatusList=pinStatusByTopic;
                 }else {
-                    pinStatusList=pinStatusByTopic;
+                    //获取重复数组
                     for (int i=0;i<pinStatusByTopic.size();i++){
                         for (int j=0;j<pinStatusByUser.size();j++){
-                            if (pinStatusByTopic.get(i).getPinId()!=pinStatusByUser.get(j).getPinId()){
-                                pinStatusList.add(pinStatusByUser.get(j));
+                            if (pinStatusByTopic.get(i).getPinId()==pinStatusByUser.get(j).getPinId()){
+                                pinStatuses1.add(pinStatusByUser.get(j));
                             }
                         }
+                    }
+                    //去重
+                    for (PinStatus pinStatusT : pinStatusByTopic) {
+                        boolean flag = true;
+                        for (PinStatus pinStatusU : pinStatusByUser) {
+                            if(pinStatusT.getPinId() == pinStatusU.getPinId()){
+                                flag = false;
+                                break;
+                            }
+                        }
+                        if(flag){
+                            pinStatusList.add(pinStatusT);
+                        }
+                    }
+                    for (int i=0;i<pinStatuses1.size();i++){
+                        pinStatusList.add(pinStatuses1.get(i));
                     }
                 }
             }

@@ -21,7 +21,7 @@ public interface ArticleService {
 
     ResponseUtil releaseArticle(Articles article);
 
-    ArticleVo getoneArticle(Integer id);
+    ArticleVo getoneArticle(ArticleLike articleLike);
 
     List<ArticleStatus>queryArticle(SearchUser searchUser);
 
@@ -36,4 +36,6 @@ public interface ArticleService {
     ResponseUtil getOtherArticleByLike(UserUser userUser);
 
     ResponseUtil getOtherLikeArticles(UserUser userUser);
+
+    ResponseUtil getRelativeArticles(ArticleLike articleLike);
 }

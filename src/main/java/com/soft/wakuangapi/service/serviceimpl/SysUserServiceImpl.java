@@ -7,12 +7,17 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
+import com.soft.wakuangapi.dao.ArticlesRepository;
+import com.soft.wakuangapi.dao.PinRepository;
 import com.soft.wakuangapi.dao.SysUserRepository;
 import com.soft.wakuangapi.dao.UserConcernRepository;
 import com.soft.wakuangapi.entity.*;
+import com.soft.wakuangapi.service.ArticleService;
 import com.soft.wakuangapi.service.SysUserService;
+import com.soft.wakuangapi.service.UserConcernService;
 import com.soft.wakuangapi.utils.QiNiuFileUpUtil;
 import com.soft.wakuangapi.utils.ResponseUtil;
+import com.soft.wakuangapi.vo.ArticleVo;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -47,6 +52,10 @@ public class SysUserServiceImpl implements SysUserService {
     private SysUserRepository sysUserRepository;
     @Resource
     private UserConcernRepository userConcernRepository;
+    @Resource
+    private ArticlesRepository articlesRepository;
+    @Resource
+    private PinRepository pinRepository;
 
     @Override
     public ResponseUtil userLogin(LoginUser loginUser) {
@@ -236,7 +245,18 @@ public class SysUserServiceImpl implements SysUserService {
                 }
             }
         }
-
         return userStatuses;
+    }
+
+    @Override
+    public ResponseUtil getMessageCount(Integer articleId) {
+        Articles articles=articlesRepository.findArticlesByArticleId(articleId);
+        SysUser sysUser=sysUserRepository.findSysUserByUserId(articles.getUsersId());
+        List<Articles>articlesList=articlesRepository.findAllByUsersId(sysUser.getUserId());//专栏数
+        List<Pins>pinsList=pinRepository.findAllByUsersId(sysUser.getUserId());//沸点数
+        List<UserUser>userUsers=userConcernRepository.findAllByUserId(sysUser.getUserId());//关注数
+        List<UserUser>userUserList=userConcernRepository.findAllByConcerneduserId(sysUser.getUserId());//被关注数
+        MessageCount messageCount=new MessageCount(pinsList.size(),articlesList.size(),userUsers.size(),userUserList.size());
+        return new ResponseUtil(0,"get message count",messageCount);
     }
 }

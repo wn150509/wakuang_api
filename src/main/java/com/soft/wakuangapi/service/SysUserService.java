@@ -22,4 +22,6 @@ public interface SysUserService {
     ResponseUtil updateUser(SysUser sysUser);
 
     List<UserStatus>querySysUserList(SearchUser searchUser);
+
+    ResponseUtil getMessageCount(Integer articleId);
 }

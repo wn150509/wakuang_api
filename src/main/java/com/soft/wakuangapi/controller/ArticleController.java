@@ -49,15 +49,15 @@ public class ArticleController {
         return articleService.releaseArticle(article);
     }
 
-    @RequestMapping(value = "/article/{id}",method = RequestMethod.GET)
-    public ResponseUtil getoneArticle(@PathVariable Integer id){
-        return new ResponseUtil(0,"get type",articleService.getoneArticle(id));
+    @RequestMapping(value = "/oneArticle",method = RequestMethod.POST)
+    public ResponseUtil getoneArticle(@RequestBody  ArticleLike articleLike){
+        return new ResponseUtil(0,"get type",articleService.getoneArticle(articleLike));
     }
 
-    @RequestMapping(value = "/comment/{id}",method = RequestMethod.GET)
-    public ResponseUtil getArticleComment(@PathVariable Integer id){
-        return new ResponseUtil(0,"get type",articleService.getoneArticle(id));
-    }
+//    @RequestMapping(value = "/comment/{id}",method = RequestMethod.GET)
+//    public ResponseUtil getArticleComment(@PathVariable Integer id){
+//        return new ResponseUtil(0,"get type",articleService.getoneArticle(id));
+//    }
 
     @RequestMapping(value = "/addcomment",method = RequestMethod.POST)
     public ResponseUtil addComment(@RequestBody ArticleComment articleComment){
@@ -117,5 +117,10 @@ public class ArticleController {
     @RequestMapping(value = "/otherlikearticles",method = RequestMethod.POST)
     public ResponseUtil getOtherLikeArticles(@RequestBody UserUser userUser){
         return articleService.getOtherLikeArticles(userUser);
+    }
+
+    @RequestMapping(value = "/getRelativeArticles",method = RequestMethod.POST)
+    public ResponseUtil getRelativeArticles(@RequestBody ArticleLike articleLike){
+        return articleService.getRelativeArticles(articleLike);
     }
 }

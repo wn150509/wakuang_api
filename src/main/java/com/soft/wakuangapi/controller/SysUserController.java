@@ -92,4 +92,9 @@ public class SysUserController {
     public ResponseUtil getOtherUserConcerner(@RequestBody UserUser userUser){
         return userConcernService.getOtherConcerner(userUser);
     }
+
+    @RequestMapping(value = "/article/{id}",method = RequestMethod.GET)
+    public ResponseUtil getMessageCount(@PathVariable Integer id){
+        return sysUserService.getMessageCount(id);
+    }
 }
