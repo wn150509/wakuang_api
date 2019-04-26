@@ -102,4 +102,9 @@ public class SysUserController {
     public ResponseUtil deleteUserAccount(@RequestBody UserUser userUser){
         return sysUserService.deleteUserAccount(userUser.getUserId());
     }
+
+    @RequestMapping(value = "/checkCode",method = RequestMethod.POST)
+    public ResponseUtil checkMessageCode(@RequestBody LoginUser loginUser){
+        return sysUserService.checkMessageCode(loginUser);
+    }
 }

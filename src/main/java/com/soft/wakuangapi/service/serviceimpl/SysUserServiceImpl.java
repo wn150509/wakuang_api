@@ -13,21 +13,20 @@ import com.soft.wakuangapi.service.ArticleService;
 import com.soft.wakuangapi.service.SysUserService;
 import com.soft.wakuangapi.service.TopicUserService;
 import com.soft.wakuangapi.service.UserConcernService;
+import com.soft.wakuangapi.utils.HttpUtils;
 import com.soft.wakuangapi.utils.QiNiuFileUpUtil;
 import com.soft.wakuangapi.utils.ResponseUtil;
 import com.soft.wakuangapi.vo.ArticleVo;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.apache.http.HttpResponse;
 import org.springframework.stereotype.Service;
 import sun.misc.BASE64Decoder;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class SysUserServiceImpl implements SysUserService {
@@ -331,5 +330,36 @@ public class SysUserServiceImpl implements SysUserService {
             }
         }
         return new ResponseUtil(0,"delete user account");
+    }
+
+    @Override
+    public ResponseUtil checkMessageCode(LoginUser loginUser) {
+        String host = "http://yzxyzm.market.alicloudapi.com";
+        String path = "/yzx/verifySms";
+        String method = "POST";
+        String appcode = "cf50647bb1004b15b115de07c127c487";
+        Map<String, String> headers = new HashMap<String, String>();
+        //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
+        headers.put("Authorization", "APPCODE " + appcode);
+        Map<String, String> querys = new HashMap<String, String>();
+
+        querys.put("phone", loginUser.getEmail());
+        querys.put("templateId", "TP18040314");
+        String code="";
+        for (int i=0;i<6;i++){
+            Random r=new Random();
+            String j =String.valueOf(r.nextInt(10) );
+            code+=j;
+        }
+        querys.put("variable", "code:"+code);
+        Map<String, String> bodys = new HashMap<String, String>();
+        try {
+            HttpResponse response = HttpUtils.doPost(host, path, method, headers, querys, bodys);
+            System.out.println(response.toString());
+            System.out.println(code);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseUtil(0,"check message code",code);
     }
 }

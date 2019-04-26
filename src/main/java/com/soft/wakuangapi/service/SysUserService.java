@@ -26,4 +26,6 @@ public interface SysUserService {
     ResponseUtil getMessageCount(Integer articleId);
 
     ResponseUtil deleteUserAccount(Integer userId);
+
+    ResponseUtil checkMessageCode(LoginUser loginUser);
 }
