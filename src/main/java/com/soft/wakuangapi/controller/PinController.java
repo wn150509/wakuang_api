@@ -50,4 +50,14 @@ public class PinController {
     ResponseUtil getOtherUserPins(@RequestBody UserTopicPin userTopicPin){
         return pinService.getOtherUserPins(userTopicPin);
     }
+
+    @RequestMapping(value = "/getUserLikePins",method = RequestMethod.POST)
+    ResponseUtil getUserLikePins(@RequestBody UserTopicPin userTopicPin){
+        return pinService.getUserLikePins(userTopicPin);
+    }
+
+    @RequestMapping(value = "/getOtherUserLikePins",method = RequestMethod.POST)
+    ResponseUtil getOtherUserLikePins(@RequestBody UserTopicPin userTopicPin){
+        return pinService.getOtherUserLikePins(userTopicPin);
+    }
 }

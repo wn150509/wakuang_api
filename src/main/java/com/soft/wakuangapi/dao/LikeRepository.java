@@ -14,4 +14,7 @@ public interface LikeRepository extends JpaRepository<ArticleLike,Integer> {
     @Transactional
     int deleteArticleLikeByUserIdAndArticleId(Integer userId,Integer articleId);
 
+    @Transactional
+    int deleteAllByArticleId(Integer articleId);
+
 }

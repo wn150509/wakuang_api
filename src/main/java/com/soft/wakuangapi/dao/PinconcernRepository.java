@@ -10,6 +10,9 @@ public interface PinconcernRepository extends JpaRepository<PinUser,Integer> {
     @Transactional
     int deletePinUserByPinIdAndUserId(Integer pinId,Integer userId);
 
+    @Transactional
+    int deleteAllByPinId(Integer pinId);
+
     List<PinUser>findPinUsersByUserId(Integer userId);
 
     List<PinUser>findPinUsersByPinId(Integer pinId);

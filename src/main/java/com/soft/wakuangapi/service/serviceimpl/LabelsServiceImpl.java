@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
 @Service
 public class LabelsServiceImpl implements LabelsService {
     @Resource
@@ -21,7 +23,14 @@ public class LabelsServiceImpl implements LabelsService {
     private ArticlesRepository articlesRepository;
     @Override
     public List<Labels> findAllLabels() {
-        return labelsRepository.findAll();
+        List<Labels>labelsList=labelsRepository.findAll();
+        //打印 30到50之间的随机数
+        int min = labelsList.get(0).getLabelsId();
+        int max = labelsList.get(4).getLabelsId();
+        for(int i=0;i<4;i++){
+            System.out.println(new Random().nextInt(max-min)+min);
+        }
+        return labelsList;
     }
 
     @Override

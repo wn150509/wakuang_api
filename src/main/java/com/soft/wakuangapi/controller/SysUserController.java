@@ -97,4 +97,9 @@ public class SysUserController {
     public ResponseUtil getMessageCount(@PathVariable Integer id){
         return sysUserService.getMessageCount(id);
     }
+
+    @RequestMapping(value = "/deleteAccount",method = RequestMethod.POST)
+    public ResponseUtil deleteUserAccount(@RequestBody UserUser userUser){
+        return sysUserService.deleteUserAccount(userUser.getUserId());
+    }
 }

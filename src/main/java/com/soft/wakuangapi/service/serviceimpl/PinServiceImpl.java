@@ -260,6 +260,58 @@ public class PinServiceImpl implements PinService{
         return new ResponseUtil(0,"get OtherUser pins",pinVos);
     }
 
+    @Override
+    public ResponseUtil getUserLikePins(UserTopicPin userTopicPin) {
+        List<PinStatus>pinStatusList=getSomeOnePinStatus(userTopicPin.getUserId());
+        List<PinVo>pinVoList=getPinVo(pinStatusList,userTopicPin);
+        List<PinUser>pinUserList=pinconcernRepository.findPinUsersByUserId(userTopicPin.getUserId());//登陆者点赞的沸点
+        List<PinVo>pinVos=new ArrayList<>();
+        if (pinUserList.size()>0){
+            for (int i=0;i<pinVoList.size();i++){
+                for (int j=0;j<pinUserList.size();j++){
+                    if (pinVoList.get(i).getPinStatus().getPinId()==pinUserList.get(j).getPinId()){
+                        pinVos.add(pinVoList.get(i));
+                    }
+                }
+            }
+            Collections.sort(pinVos, new Comparator<PinVo>() {
+                @Override
+                public int compare(PinVo o1, PinVo o2) {
+                    return o2.getPinStatus().getCreateTime().compareTo(o1.getPinStatus().getCreateTime());
+                }
+            });
+        }else {
+            pinVos=null;
+        }
+        return new ResponseUtil(0,"get user like pins",pinVos);
+    }
+
+    @Override
+    public ResponseUtil getOtherUserLikePins(UserTopicPin userTopicPin) {
+        List<PinStatus>pinStatusList=getSomeOnePinStatus(userTopicPin.getUserId());
+        List<PinVo>pinVoList=getPinVo(pinStatusList,userTopicPin);
+        List<PinUser>pinUserList=pinconcernRepository.findPinUsersByUserId(userTopicPin.getConcerneduserId());//被点击者点赞的沸点
+        List<PinVo>pinVos=new ArrayList<>();
+        if (pinUserList.size()>0){
+            for (int i=0;i<pinVoList.size();i++){
+                for (int j=0;j<pinUserList.size();j++){
+                    if (pinVoList.get(i).getPinStatus().getPinId()==pinUserList.get(j).getPinId()){
+                        pinVos.add(pinVoList.get(i));
+                    }
+                }
+            }
+            Collections.sort(pinVos, new Comparator<PinVo>() {
+                @Override
+                public int compare(PinVo o1, PinVo o2) {
+                    return o2.getPinStatus().getCreateTime().compareTo(o1.getPinStatus().getCreateTime());
+                }
+            });
+        }else {
+            pinVos=null;
+        }
+        return new ResponseUtil(0,"get other user like pins",pinVos);
+    }
+
 
     //简单上传，使用默认策略，只需要设置上传的空间名就可以了
     public String getUpToken(){

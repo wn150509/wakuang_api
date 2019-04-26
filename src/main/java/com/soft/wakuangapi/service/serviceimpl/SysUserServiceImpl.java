@@ -7,13 +7,11 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
-import com.soft.wakuangapi.dao.ArticlesRepository;
-import com.soft.wakuangapi.dao.PinRepository;
-import com.soft.wakuangapi.dao.SysUserRepository;
-import com.soft.wakuangapi.dao.UserConcernRepository;
+import com.soft.wakuangapi.dao.*;
 import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.service.ArticleService;
 import com.soft.wakuangapi.service.SysUserService;
+import com.soft.wakuangapi.service.TopicUserService;
 import com.soft.wakuangapi.service.UserConcernService;
 import com.soft.wakuangapi.utils.QiNiuFileUpUtil;
 import com.soft.wakuangapi.utils.ResponseUtil;
@@ -56,6 +54,14 @@ public class SysUserServiceImpl implements SysUserService {
     private ArticlesRepository articlesRepository;
     @Resource
     private PinRepository pinRepository;
+    @Resource
+    private LikeRepository likeRepository;
+    @Resource
+    private ConcernRepository concernRepository;
+    @Resource
+    private PinconcernRepository pinconcernRepository;
+    @Resource
+    private TopicUserRepository topicUserRepository;
 
     @Override
     public ResponseUtil userLogin(LoginUser loginUser) {
@@ -258,5 +264,72 @@ public class SysUserServiceImpl implements SysUserService {
         List<UserUser>userUserList=userConcernRepository.findAllByConcerneduserId(sysUser.getUserId());//被关注数
         MessageCount messageCount=new MessageCount(pinsList.size(),articlesList.size(),userUsers.size(),userUserList.size());
         return new ResponseUtil(0,"get message count",messageCount);
+    }
+
+    @Override
+    public ResponseUtil deleteUserAccount(Integer userId) {
+        sysUserRepository.deleteSysUserByUserId(userId);//删除sysUser表中用户数据
+        List<UserUser>userUserList=userConcernRepository.findAllByUserId(userId);
+        if (userUserList.size()>0){
+            for (int i=0; i<userUserList.size();i++){
+                userConcernRepository.deleteUserUserByUserIdAndConcerneduserId(userId,userUserList.get(i).getConcerneduserId());//删除UserUser表中该用户关注的数据
+            }
+        }
+        List<UserUser>userUsers=userConcernRepository.findAllByConcerneduserId(userId);
+        if (userUsers.size()>0){
+            for (int i=0;i<userUsers.size();i++){
+                userConcernRepository.deleteUserUserByUserIdAndConcerneduserId(userUsers.get(i).getUserId(),userId);//删除UserUser表中该用户被关注的数据
+            }
+        }
+        List<TopicUser>topicUserList=topicUserRepository.findAllByUserId(userId);
+        if (topicUserList.size()>0){
+            for (int i=0;i<topicUserList.size();i++){
+                topicUserRepository.deleteTopicUserByUserIdAndTopicId(userId,topicUserList.get(i).getTopicId());//删除TopicUser表中该用户数据
+            }
+        }
+        List<PinUser>pinUserList=pinconcernRepository.findPinUsersByUserId(userId);
+        if (pinUserList.size()>0){
+            for (int i=0;i<pinUserList.size();i++){
+                pinconcernRepository.deletePinUserByPinIdAndUserId(pinUserList.get(i).getPinId(),userId);//删除PinUser表中该用户数据
+            }
+        }
+        List<Pins>pinsList=pinRepository.findAllByUsersId(userId);//找到该用户所有创建的沸点
+        if(pinsList.size()>0){
+            for (int i=0;i<pinsList.size();i++){
+                List<PinUser>pinUsers=pinconcernRepository.findPinUsersByPinId(pinsList.get(i).getPinId());//找到该用户创建的某个沸点被点赞数据
+                if(pinUsers.size()>0){
+                    for (int j=0;j<pinUsers.size();j++){
+                        pinconcernRepository.deleteAllByPinId(pinUsers.get(j).getPinId());//删除该沸点被点赞的所有数据
+                    }
+                }
+                pinRepository.deletePinByUsersIdAndPinId(userId,pinsList.get(i).getPinId());//删除该用户创建的沸点
+            }
+        }
+
+        List<ConcernUser>concernUserList=concernRepository.findAllByUserId(userId);
+        if (concernUserList.size()>0){
+            for (int i=0;i<concernUserList.size();i++){
+                concernRepository.deleteConcernUserByUserIdAndLabelId(userId,concernUserList.get(i).getLabelId());//删除ConcernUser表中该用户数据
+            }
+        }
+        List<Articles>articlesList=articlesRepository.findAllByUsersId(userId);//找到该用户所有创建的文章
+        if (articlesList.size()>0){
+            for (int i=0;i<articlesList.size();i++){
+                List<ArticleLike>articleLikes=likeRepository.findArticleLikeByArticleId(articlesList.get(i).getArticleId());//找到该用户创建的某个文章被点赞数据
+                if (articleLikes.size()>0){
+                    for (int j=0;j<articleLikes.size();j++){
+                        likeRepository.deleteAllByArticleId(articleLikes.get(j).getArticleId());//删除该文章被点赞的所有数据
+                    }
+                }
+                articlesRepository.deleteArticlesByArticleIdAndUsersId(articlesList.get(i).getArticleId(),userId);//删除该用户所创建的文章
+            }
+        }
+        List<ArticleLike>articleLikeList=likeRepository.findArticleLikeByUserId(userId);//找到该用户所有点赞的文章数据
+        if (articleLikeList.size()>0){
+            for (int i=0;i<articleLikeList.size();i++){
+                likeRepository.deleteArticleLikeByUserIdAndArticleId(userId,articleLikeList.get(i).getArticleId());//删除该用户点赞的文章数据
+            }
+        }
+        return new ResponseUtil(0,"delete user account");
     }
 }

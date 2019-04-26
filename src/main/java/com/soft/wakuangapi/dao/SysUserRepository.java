@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 public interface SysUserRepository extends JpaRepository<SysUser, Integer> {
@@ -16,7 +17,6 @@ public interface SysUserRepository extends JpaRepository<SysUser, Integer> {
     SysUser findSysUserByEmail(String account);
 
     SysUser findSysUserByUserId(Integer id);
-
     /**
      * 根据热度降序排列
      * JPQL语句
@@ -32,4 +32,8 @@ public interface SysUserRepository extends JpaRepository<SysUser, Integer> {
      */
     @Query(value = "select * from sys_user where sys_user.user_name LIKE CONCAT('%',:user_name,'%')", nativeQuery = true)
     List<SysUser> querySysUserList(@Param("user_name") String user_name);
+
+    //删除用户
+    @Transactional
+    int deleteSysUserByUserId(Integer userId);
 }

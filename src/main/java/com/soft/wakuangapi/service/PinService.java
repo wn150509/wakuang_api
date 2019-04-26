@@ -19,4 +19,8 @@ public interface PinService {
     ResponseUtil getUserPins(UserTopicPin userTopicPin);
 
     ResponseUtil getOtherUserPins(UserTopicPin userTopicPin);
+
+    ResponseUtil getUserLikePins(UserTopicPin userTopicPin);
+
+    ResponseUtil getOtherUserLikePins(UserTopicPin userTopicPin);
 }

@@ -24,4 +24,6 @@ public interface SysUserService {
     List<UserStatus>querySysUserList(SearchUser searchUser);
 
     ResponseUtil getMessageCount(Integer articleId);
+
+    ResponseUtil deleteUserAccount(Integer userId);
 }
