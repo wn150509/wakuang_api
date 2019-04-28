@@ -54,10 +54,10 @@ public class ArticleController {
         return new ResponseUtil(0,"get type",articleService.getoneArticle(articleLike));
     }
 
-//    @RequestMapping(value = "/comment/{id}",method = RequestMethod.GET)
-//    public ResponseUtil getArticleComment(@PathVariable Integer id){
-//        return new ResponseUtil(0,"get type",articleService.getoneArticle(id));
-//    }
+    @RequestMapping(value = "/comments",method = RequestMethod.POST)
+    public ResponseUtil getCommentStatus(@RequestBody ArticleLike articleLik){
+       return commentService.getComments(articleLik);
+    }
 
     @RequestMapping(value = "/addcomment",method = RequestMethod.POST)
     public ResponseUtil addComment(@RequestBody ArticleComment articleComment){
@@ -65,8 +65,18 @@ public class ArticleController {
     }
 
     @RequestMapping(value = "/delcomment",method = RequestMethod.POST)
-    public ResponseUtil deleteComment(@RequestBody Integer id){
-        return commentService.deleteComment(id);
+    public ResponseUtil deleteComment(@RequestBody ArticleComment articleComment){
+        return commentService.deleteComment(articleComment);
+    }
+
+    @RequestMapping(value = "/insertLikeComment",method = RequestMethod.POST)
+    public ResponseUtil insertLikeComment(@RequestBody CommentLike commentLike){
+        return commentService.insertCommentLike(commentLike);
+    }
+
+    @RequestMapping(value = "/deleteLikeComment",method = RequestMethod.POST)
+    public ResponseUtil deleteLikeComment(@RequestBody CommentLike commentLike){
+        return commentService.deleteCommentLike(commentLike);
     }
 
     @RequestMapping(value = "/queryarticle",method = RequestMethod.POST)

@@ -50,8 +50,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Resource
     private SysUserRepository sysUserRepository;
     @Resource
-    private CommentChildRepository commentChildRepository;
-    @Resource
     private UserConcernRepository userConcernRepository;
 
     @Override
@@ -408,8 +406,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
     //给文章评论数赋值
     public int getCount(Integer articleid){
-        return commentRepository.findArticleCommentsByArticleId(articleid).size()
-                +commentChildRepository.findCommentChildrenByArticleId(articleid).size();
+        return commentRepository.findAllByArticleId(articleid).size();
     }
 
     public List<ArticleStatus>getArticleStatus(Integer id){
@@ -427,7 +424,7 @@ public class ArticleServiceImpl implements ArticleService {
             }
             ArticleStatus articleStatus=new ArticleStatus(articles.getArticleId(),articles.getArticleTitle(),
                     articles.getArticleContent(),articles.getArticleAuthor(),articles.getArticlePic(),
-                    articles.getAuthorAvatar(),articles.getCommentCount(),articleLikes.size(), articles.getUsersId(), articles.getLabelId(),
+                    articles.getAuthorAvatar(),getCount(articles.getArticleId()),articleLikes.size(), articles.getUsersId(), articles.getLabelId(),
                     articles.getCreateTime(), articles.getTypeId(),status);
             articleStatusList.add(articleStatus);
         }

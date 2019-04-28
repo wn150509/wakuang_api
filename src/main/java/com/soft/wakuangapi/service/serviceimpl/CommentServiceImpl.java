@@ -1,22 +1,16 @@
 package com.soft.wakuangapi.service.serviceimpl;
 
-import com.soft.wakuangapi.dao.CommentChildRepository;
-import com.soft.wakuangapi.dao.CommentRepository;
-import com.soft.wakuangapi.dao.SysUserRepository;
-import com.soft.wakuangapi.entity.ArticleComment;
-import com.soft.wakuangapi.entity.CommentChild;
+import com.soft.wakuangapi.dao.*;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.service.CommentService;
 import com.soft.wakuangapi.utils.ResponseUtil;
-import com.soft.wakuangapi.vo.CommentChildVo;
-import com.soft.wakuangapi.vo.CommentVo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.Collections;
 
 @Service
 public class CommentServiceImpl implements CommentService{
@@ -25,7 +19,9 @@ public class CommentServiceImpl implements CommentService{
     @Resource
     private SysUserRepository sysUserRepository;
     @Resource
-    private CommentChildRepository commentChildRepository;
+    private UserConcernRepository userConcernRepository;
+    @Resource
+    private CommentlikeRepository commentlikeRepository;
 
     @Override
     public ResponseUtil addComment(ArticleComment articleComment) {
@@ -45,29 +41,90 @@ public class CommentServiceImpl implements CommentService{
     }
 
     @Override
-    public ResponseUtil deleteComment(Integer id) {
-        return new ResponseUtil(0,"delete comment",commentRepository.deleteArticleCommentByCommentId(id));
+    public ResponseUtil deleteComment(ArticleComment articleComment) {
+        return new ResponseUtil(0,"delete comment",commentRepository.deleteArticleCommentByCommentId(articleComment.getCommentId()));
     }
 
     @Override
-    public ResponseUtil getComments(Integer id) {
-        List<CommentVo>commentVoList=new ArrayList<>();
-        List<ArticleComment>articleCommentList=commentRepository.findArticleCommentsByArticleId(id);
-        for(int i=0;i<articleCommentList.size();i++){
-            CommentVo commentVo=new CommentVo();
-            commentVo.setContent(articleCommentList.get(i).getCommentContent());
-            commentVo.setTime(articleCommentList.get(i).getCommentTime());
-            commentVo.setSysUser(sysUserRepository.findSysUserByUserId(articleCommentList.get(i).getUserId()));
-            if(commentChildRepository.findCommentChildrenByUserId(articleCommentList.get(i).getUserId()).size()==0){
-                commentVo.setCommentChildVoList(null);
-            }else {
-                List<CommentChildVo>commentChildVoList=new ArrayList<>();
-                List<CommentChild>commentChildren=commentChildRepository.findCommentChildrenByUserId(articleCommentList.get(i).getUserId());
-                for(int j=0;j<commentChildren.size();j++){
+    public ResponseUtil getComments(ArticleLike articleLike) {
+        List<CommentStatus>commentStatuses=getCommentStatus(articleLike);
 
+        return new ResponseUtil(0,"get comments status",paixuTime(commentStatuses));
+    }
+
+    @Override
+    public ResponseUtil insertCommentLike(CommentLike commentLike) {
+        return new ResponseUtil(0,"insert like comment",commentlikeRepository.save(commentLike)) ;
+    }
+
+    @Override
+    public ResponseUtil deleteCommentLike(CommentLike commentLike) {
+        return new ResponseUtil(0,"delete like comment",commentlikeRepository.deleteCommentLikeByCommentIdAndUserId(commentLike.getCommentId(),commentLike.getUserId()));
+    }
+
+    public List<CommentStatus>getCommentStatus(ArticleLike articleLike){
+        List<ArticleComment>articleCommentList=commentRepository.findAllByArticleId(articleLike.getArticleId());//找到谋篇文章下的所有评论
+        List<CommentLike>commentLikes=commentlikeRepository.findAllByUserId(articleLike.getUserId());//找到该用户喜欢的所有评论
+        List<CommentStatus>commentStatuses=new ArrayList<>();
+        for (int i=0;i<articleCommentList.size();i++){
+            ArticleComment articleComment=articleCommentList.get(i);
+            int status=0;
+            List<CommentLike>commentLikeList=commentlikeRepository.findAllByCommentId(articleComment.getCommentId());
+            for (int j=0;j<commentLikes.size();j++){
+                if (articleComment.getCommentId()==commentLikes.get(j).getCommentId()){
+                    status=1;
                 }
             }
+            UserStatus userStatus=getOneUserStatus(articleLike.getUserId(),articleComment.getUserId());
+            CommentStatus commentStatus=new CommentStatus(articleComment.getCommentId(),articleComment.getArticleId(),userStatus,
+                    articleComment.getCommentContent(),articleComment.getCommentTime(),commentLikeList.size(),status);
+            commentStatuses.add(commentStatus);
         }
-        return null;
+        return commentStatuses;
     }
+
+    public UserStatus getOneUserStatus(Integer userId,Integer concernedId){
+        List<SysUser>userList=sysUserRepository.findAll();//获取表中所有用户信息
+        List<UserUser>userUsers=userConcernRepository.findAllByUserId(userId);//根据userId获取被关注用户ID组
+        UserStatus userStatus=new UserStatus();
+        SysUser sysUser=sysUserRepository.findSysUserByUserId(concernedId);//找到发布用户
+        int status=0;
+        for (int i=0;i<userUsers.size();i++){
+            if (userUsers.get(i).getConcerneduserId()==concernedId){
+                status=1;
+            }
+        }
+        userStatus=new UserStatus(sysUser.getUserId(),
+                sysUser.getUserAvatar(),sysUser.getUserName(),
+                sysUser.getDescription(),sysUser.getUserCompany(),sysUser.getUserPosition(),status);
+        return userStatus;
+    }
+
+    public List<CommentStatus> paixuTime(List<CommentStatus>commentStatuses){
+
+        Collections.sort(commentStatuses, new Comparator<CommentStatus>(){
+            /*
+             * int compare(Student o1, Student o2) 返回一个基本类型的整型，
+             * 返回负数表示：o1 小于o2，
+             * 返回0 表示：o1和o2相等，
+             * 返回正数表示：o1大于o2。
+             */
+            public int compare(CommentStatus o1, CommentStatus o2) {
+                //进行降序排列
+                //将date类型的转换为String类型，然后截取和库中相同的长度，再转换为int；这样的截取方式已比对过，无差异
+                Integer dateValue1 = Integer.valueOf(String.valueOf(o1.getCommentTime().getTime()).substring(0, 10));
+                Integer dataValue2 = Integer.valueOf(String.valueOf(o2.getCommentTime().getTime()).substring(0,10));
+                if(dateValue1 < dataValue2){
+                    return 1;
+                }
+                if(dateValue1 == dataValue2){
+                    return 0;
+                }
+                return -1;
+            }
+        });
+
+        return commentStatuses;
+    }
+
 }

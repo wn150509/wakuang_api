@@ -15,7 +15,7 @@ public class MessageCode {
         //最后在header中的格式(中间是英文空格)为Authorization:APPCODE 83359fd73fe94948385f570e3c139105
         headers.put("Authorization", "APPCODE " + appcode);
         Map<String, String> querys = new HashMap<String, String>();
-        querys.put("phone", "18136653952");
+        querys.put("phone", "18052073669");
         querys.put("templateId", "TP18040314");
         String code="";
         for (int i=0;i<6;i++){
