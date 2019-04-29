@@ -107,4 +107,9 @@ public class SysUserController {
     public ResponseUtil checkMessageCode(@RequestBody LoginUser loginUser){
         return sysUserService.checkMessageCode(loginUser);
     }
+
+    @RequestMapping(value = "/userRightMessageCount",method = RequestMethod.POST)
+    public ResponseUtil getUserRightMessageCount(@RequestBody UserUser userUser){
+        return sysUserService.getUserRightMessageCount(userUser);
+    }
 }

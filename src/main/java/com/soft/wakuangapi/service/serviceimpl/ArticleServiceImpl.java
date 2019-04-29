@@ -57,7 +57,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatusList=new ArrayList<>();
         List<ArticleStatus>articleStatuses=getArticleStatus(userType.getUserId());
         for (int i=0;i<articleStatuses.size();i++){
-            if (articleStatuses.get(i).getTypeId()==userType.getTypeId()){
+            if (articleStatuses.get(i).getTypeId().equals(userType.getTypeId())){
                 articleStatusList.add(articleStatuses.get(i));
             }
         }
@@ -74,7 +74,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatusList=new ArrayList<>();
         List<ArticleStatus>articleStatuses=getArticleStatus(userType.getUserId());
         for (int i=0;i<articleStatuses.size();i++){
-            if (articleStatuses.get(i).getTypeId()==userType.getTypeId()){
+            if (articleStatuses.get(i).getTypeId().equals(userType.getTypeId())){
                 articleStatusList.add(articleStatuses.get(i));
             }
         }
@@ -85,7 +85,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatusList=new ArrayList<>();
         List<ArticleStatus>articleStatuses=getArticleStatus(userType.getUserId());
         for (int i=0;i<articleStatuses.size();i++){
-            if (articleStatuses.get(i).getTypeId()==userType.getTypeId()){
+            if (articleStatuses.get(i).getTypeId().equals(userType.getTypeId())){
                 articleStatusList.add(articleStatuses.get(i));
             }
         }
@@ -197,14 +197,14 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatuses=getArticleStatus(articleLike.getUserId());
         ArticleStatus articleStatus=new ArticleStatus();
         for (int i=0;i<articleStatuses.size();i++){
-            if (articleLike.getArticleId()==articleStatuses.get(i).getArticleId()){
+            if (articleLike.getArticleId().equals(articleStatuses.get(i).getArticleId())){
                 articleStatus=articleStatuses.get(i);
             }
         }
         List<UserStatus>userStatuses=getSomeOneUserStatus(articleLike.getUserId());
         UserStatus userStatus=new UserStatus();
         for (int i=0;i<userStatuses.size();i++){
-            if (articleStatus.getUsersId()==userStatuses.get(i).getUserId()){
+            if (articleStatus.getUsersId().equals(userStatuses.get(i).getUserId())){
                 userStatus=userStatuses.get(i);
             }
         }
@@ -219,7 +219,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatusList=new ArrayList<>();
         for (int i=0;i<articlesList.size();i++){
             for (int j=0;j<articleStatuses.size();j++){
-                if (articlesList.get(i).getArticleId()==articleStatuses.get(j).getArticleId()){
+                if (articlesList.get(i).getArticleId().equals(articleStatuses.get(j).getArticleId())){
                     articleStatusList.add(articleStatuses.get(j));
                 }
             }
@@ -272,7 +272,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatusList=getArticleStatus(userUser.getUserId());
         List<ArticleStatus>articleStatuses=new ArrayList<>();
         for (int i=0;i<articleStatusList.size();i++){
-            if (articleStatusList.get(i).getUsersId()==userUser.getConcerneduserId()){
+            if (articleStatusList.get(i).getUsersId().equals(userUser.getConcerneduserId())){
                 articleStatuses.add(articleStatusList.get(i));
             }
         }
@@ -290,7 +290,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatusList=getArticleStatus(userUser.getUserId());
         List<ArticleStatus>articleStatuses=new ArrayList<>();
         for (int i=0;i<articleStatusList.size();i++){
-            if (articleStatusList.get(i).getUsersId()==userUser.getConcerneduserId()){
+            if (articleStatusList.get(i).getUsersId().equals(userUser.getConcerneduserId())){
                 articleStatuses.add(articleStatusList.get(i));
             }
         }
@@ -312,7 +312,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (articleLikeList.size()>0){
             for (int i=0;i<articleStatusList.size();i++){
                 for (int j=0;j<articleLikeList.size();j++){
-                    if (articleStatusList.get(i).getArticleId()==articleLikeList.get(j).getArticleId()){
+                    if (articleStatusList.get(i).getArticleId().equals(articleLikeList.get(j).getArticleId())){
                         articleStatuses.add(articleStatusList.get(i));
                     }
                 }
@@ -397,7 +397,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatusList=new ArrayList<>();
         for (int i=0;i<concernUserList.size();i++){
             for (int j=0;j<articleStatusList1.size();j++){
-                if (articleStatusList1.get(j).getLabelId()==concernUserList.get(i).getLabelId()){
+                if (articleStatusList1.get(j).getLabelId().equals(concernUserList.get(i).getLabelId())){
                     articleStatusList.add(articleStatusList1.get(j));
                 }
             }
@@ -418,7 +418,7 @@ public class ArticleServiceImpl implements ArticleService {
             int status=0;
             List<ArticleLike>articleLikes=likeRepository.findArticleLikeByArticleId(articles.getArticleId());
             for (int j=0;j<articleLikeList.size();j++){
-                if (articleLikeList.get(j).getArticleId()==articlesList.get(i).getArticleId()){
+                if (articleLikeList.get(j).getArticleId().equals(articlesList.get(i).getArticleId())){
                     status=1;
                 }
             }
@@ -486,7 +486,7 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleStatus>articleStatusList=getArticleStatus(userId);
         List<ArticleStatus>articleStatuses=new ArrayList<>();
         for (int i=0;i<articleStatusList.size();i++){
-            if (articleStatusList.get(i).getUsersId()==userId){
+            if (articleStatusList.get(i).getUsersId().equals(userId)){
                 articleStatuses.add(articleStatusList.get(i));
             }
         }
@@ -502,7 +502,7 @@ public class ArticleServiceImpl implements ArticleService {
             SysUser sysUser=userList.get(i);
             int status=0;
             for (int j=0;j<userUsers.size();j++){
-                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                if (userUsers.get(j).getConcerneduserId().equals(userList.get(i).getUserId())){
                     status=1;
                 }
             }

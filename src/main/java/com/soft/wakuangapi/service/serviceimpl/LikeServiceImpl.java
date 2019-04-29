@@ -30,7 +30,7 @@ public class LikeServiceImpl implements LikeService{
             int status=0;
             List<ArticleLike>articleLikes=likeRepository.findArticleLikeByArticleId(articles.getArticleId());
             for (int j=0;j<articleLikeList.size();j++){
-                if (articleLikeList.get(j).getArticleId()==articlesList.get(i).getArticleId()){
+                if (articleLikeList.get(j).getArticleId().equals(articlesList.get(i).getArticleId())){
                     status=1;
                 }
             }

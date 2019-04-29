@@ -25,7 +25,7 @@ public class UserConcernServiceImpl implements UserConcernService{
         List<UserStatus>userStatuses=getSomeOneUserStatus(userUser.getUserId());
         UserStatus userStatus1=new UserStatus();
         for (int i=0;i<userStatuses.size();i++){
-            if (userStatuses.get(i).getUserId()==userUser.getConcerneduserId()){
+            if (userStatuses.get(i).getUserId().equals(userUser.getConcerneduserId())){
                 userStatus1=userStatuses.get(i);
             }
         }
@@ -56,7 +56,7 @@ public class UserConcernServiceImpl implements UserConcernService{
         List<SysUser>sysUserList=new ArrayList<>();
         for (int i=0;i<sysUsers.size();i++){
             for (int j=0;j<userUsers.size();j++){
-                if (userUsers.get(j).getUserId()==sysUsers.get(i).getUserId()){
+                if (userUsers.get(j).getUserId().equals(sysUsers.get(i).getUserId())){
                     sysUserList.add(sysUsers.get(i));
                 }
             }
@@ -72,7 +72,7 @@ public class UserConcernServiceImpl implements UserConcernService{
         if (userUserList.size()>0){
             for (int i=0;i<userStatusList.size();i++){
                 for (int j=0;j<userUserList.size();j++){
-                    if (userStatusList.get(i).getUserId()==userUserList.get(j).getConcerneduserId()){
+                    if (userStatusList.get(i).getUserId().equals(userUserList.get(j).getConcerneduserId())){
                         userStatuses.add(userStatusList.get(i));
                     }
                 }
@@ -92,7 +92,7 @@ public class UserConcernServiceImpl implements UserConcernService{
         if (userUserList.size()>0){
             for (int i=0;i<userStatusList.size();i++){
                 for (int j=0;j<userUserList.size();j++){
-                    if (userStatusList.get(i).getUserId()==userUserList.get(j).getUserId()){
+                    if (userStatusList.get(i).getUserId().equals(userUserList.get(j).getUserId())){
                         userStatuses.add(userStatusList.get(i));
                     }
                 }
@@ -112,7 +112,7 @@ public class UserConcernServiceImpl implements UserConcernService{
             SysUser sysUser=userList.get(i);
             int status=0;
             for (int j=0;j<userUsers.size();j++){
-                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                if (userUsers.get(j).getConcerneduserId().equals(userList.get(i).getUserId())){
                     status=1;
                 }
             }

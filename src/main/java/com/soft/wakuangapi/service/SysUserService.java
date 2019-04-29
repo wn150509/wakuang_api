@@ -1,10 +1,8 @@
 package com.soft.wakuangapi.service;
 
-import com.soft.wakuangapi.entity.LoginUser;
-import com.soft.wakuangapi.entity.SearchUser;
-import com.soft.wakuangapi.entity.SysUser;
-import com.soft.wakuangapi.entity.UserStatus;
+import com.soft.wakuangapi.entity.*;
 import com.soft.wakuangapi.utils.ResponseUtil;
+import org.apache.catalina.User;
 
 import java.util.List;
 
@@ -28,4 +26,6 @@ public interface SysUserService {
     ResponseUtil deleteUserAccount(Integer userId);
 
     ResponseUtil checkMessageCode(LoginUser loginUser);
+
+    ResponseUtil getUserRightMessageCount(UserUser userUser);
 }

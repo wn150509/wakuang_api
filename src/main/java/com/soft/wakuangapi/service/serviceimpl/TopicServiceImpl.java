@@ -43,7 +43,7 @@ public class TopicServiceImpl implements TopicService {
         List<TopicStatus>topicStatusList=getTopicStatus(userTopicPin.getUserId());
         TopicStatus topicStatus=new TopicStatus();
         for (int i=0;i<topicStatusList.size();i++){
-            if (topicStatusList.get(i).getTopicId()==userTopicPin.getTopicId()){
+            if (topicStatusList.get(i).getTopicId().equals(userTopicPin.getTopicId())){
                 topicStatus=topicStatusList.get(i);
             }
         }
@@ -53,7 +53,7 @@ public class TopicServiceImpl implements TopicService {
         if (topicUserList.size()>0){
             for (int i=0;i<userStatusList.size();i++){
                 for (int j=0;j<topicUserList.size();j++){
-                    if (userStatusList.get(i).getUserId()==topicUserList.get(j).getUserId()){
+                    if (userStatusList.get(i).getUserId().equals(topicUserList.get(j).getUserId())){
                         userStatuses.add(userStatusList.get(i));
                     }
                 }
@@ -67,7 +67,7 @@ public class TopicServiceImpl implements TopicService {
         List<PinVo>pinVosByLike=new ArrayList<>();
         List<PinVo>pinVosByTime=new ArrayList<>();
         for (int i=0;i<pinVoList.size();i++){
-            if (pinVoList.get(i).getTopics().getTopicId()==userTopicPin.getTopicId()){
+            if (pinVoList.get(i).getTopics().getTopicId().equals(userTopicPin.getTopicId())){
                 pinVosByLike.add(pinVoList.get(i));
                 pinVosByTime.add(pinVoList.get(i));
             }
@@ -98,7 +98,7 @@ public class TopicServiceImpl implements TopicService {
             List<Pins>topicpinscount=pinRepository.getAllByTopicId(topicsList.get(i).getTopicId());
             int status=0;
             for (int j=0;j<topicUserList.size();j++){
-                if (topicUserList.get(j).getTopicId()==topicsList.get(i).getTopicId()){
+                if (topicUserList.get(j).getTopicId().equals(topicsList.get(i).getTopicId())){
                     status=1;
                 }
             }
@@ -118,7 +118,7 @@ public class TopicServiceImpl implements TopicService {
             SysUser sysUser=userList.get(i);
             int status=0;
             for (int j=0;j<userUsers.size();j++){
-                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                if (userUsers.get(j).getConcerneduserId().equals(userList.get(i).getUserId())){
                     status=1;
                 }
             }
@@ -140,7 +140,7 @@ public class TopicServiceImpl implements TopicService {
             Pins pins=pinsList.get(i);
             List<PinUser>pinUsers=pinconcernRepository.findPinUsersByPinId(pins.getPinId());
             for (int j=0;j<pinUserList.size();j++){
-                if (pins.getPinId()==pinUserList.get(j).getPinId()){
+                if (pins.getPinId().equals(pinUserList.get(j).getPinId())){
                     status=1;
                 }
             }
@@ -160,7 +160,7 @@ public class TopicServiceImpl implements TopicService {
             SysUser sysUser=userList.get(i);
             int status=0;
             for (int j=0;j<userUsers.size();j++){
-                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                if (userUsers.get(j).getConcerneduserId().equals(userList.get(i).getUserId())){
                     status=1;
                 }
             }

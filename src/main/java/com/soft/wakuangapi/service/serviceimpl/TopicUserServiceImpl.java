@@ -46,7 +46,7 @@ public class TopicUserServiceImpl implements TopicUserService {
             for (int i=0;i<topicUserList.size();i++){
                 TopicStatus topicStatus=new TopicStatus();
                 for (int j=0;j<topicStatuses.size();j++){
-                    if (topicUserList.get(i).getTopicId()==topicStatuses.get(j).getTopicId()){
+                    if (topicUserList.get(i).getTopicId().equals(topicStatuses.get(j).getTopicId())){
                         topicStatus=topicStatuses.get(j);
                     }
                 }
@@ -56,7 +56,7 @@ public class TopicUserServiceImpl implements TopicUserService {
             for (int i=0;i<4;i++){
                 TopicStatus topicStatus=new TopicStatus();
                 for (int j=0;j<topicStatuses.size();j++){
-                    if (topicUserList.get(i).getTopicId()==topicStatuses.get(j).getTopicId()){
+                    if (topicUserList.get(i).getTopicId().equals(topicStatuses.get(j).getTopicId())){
                         topicStatus=topicStatuses.get(j);
                     }
                 }
@@ -76,7 +76,7 @@ public class TopicUserServiceImpl implements TopicUserService {
             List<Pins>topicpinscount=pinRepository.getAllByTopicId(topicsList.get(i).getTopicId());
             int status=0;
             for (int j=0;j<topicUserList.size();j++){
-                if (topicUserList.get(j).getTopicId()==topicsList.get(i).getTopicId()){
+                if (topicUserList.get(j).getTopicId().equals(topicsList.get(i).getTopicId())){
                     status=1;
                 }
             }

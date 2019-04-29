@@ -1,27 +1,28 @@
 package com.soft.wakuangapi.entity;
 
 import lombok.Data;
+
 import java.util.Date;
 
 @Data
-public class CommentStatus {
+public class PinCommentStatus {
     private Integer commentId;
 
-    private Integer articleId;
-    private SysUser sysUser;//评论的用户
+    private Integer pinId;
+    private UserStatus userStatus;//评论的用户
 
     private String commentContent;
     private Date commentTime;
     private Integer likeCount;
     private Integer status;
 
-    public CommentStatus() {
+    public PinCommentStatus() {
     }
 
-    public CommentStatus(Integer commentId, Integer articleId, SysUser sysUser, String commentContent, Date commentTime, Integer likeCount, Integer status) {
+    public PinCommentStatus(Integer commentId, Integer pinId, UserStatus userStatus, String commentContent, Date commentTime, Integer likeCount, Integer status) {
         this.commentId = commentId;
-        this.articleId = articleId;
-        this.sysUser = sysUser;
+        this.pinId = pinId;
+        this.userStatus = userStatus;
         this.commentContent = commentContent;
         this.commentTime = commentTime;
         this.likeCount = likeCount;

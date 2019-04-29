@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class MessageCount {
-    private Integer pinCount;
-    private Integer articleCount;
-    private Integer userConcernCount;
-    private Integer userConcernedCount;
+    private Integer pinCount;//沸点数
+    private Integer articleCount;//专栏数
+    private Integer userConcernCount;//用户关注了数量
+    private Integer userConcernedCount;//用户受关注数
 
     public MessageCount() {
     }

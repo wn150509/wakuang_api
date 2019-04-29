@@ -42,7 +42,7 @@ public class ConcernServiceImpl implements ConcernService {
         if (concernUserList.size()>0){
             for (int i=0;i<labelStatusList.size();i++){
                 for (int j=0;j<concernUserList.size();j++){
-                    if (labelStatusList.get(i).getLabelsId()==concernUserList.get(j).getLabelId()){
+                    if (labelStatusList.get(i).getLabelsId().equals(concernUserList.get(j).getLabelId())){
                         labelStatuses.add(labelStatusList.get(i));
                     }
                 }
@@ -64,7 +64,7 @@ public class ConcernServiceImpl implements ConcernService {
             List<Articles>labelarticlecount=articlesRepository.findAllByLabelId(labelsList.get(i).getLabelsId());
             int status=0;
             for (int j=0;j<concernUsers.size();j++){
-                if (concernUsers.get(j).getLabelId()==labelsList.get(i).getLabelsId()){
+                if (concernUsers.get(j).getLabelId().equals(labelsList.get(i).getLabelsId())){
                     status=1;
                 }
             }

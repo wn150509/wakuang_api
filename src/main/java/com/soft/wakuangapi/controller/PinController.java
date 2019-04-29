@@ -1,8 +1,7 @@
 package com.soft.wakuangapi.controller;
 
-import com.soft.wakuangapi.entity.PinUser;
-import com.soft.wakuangapi.entity.Pins;
-import com.soft.wakuangapi.entity.UserTopicPin;
+import com.soft.wakuangapi.entity.*;
+import com.soft.wakuangapi.service.PinCommentService;
 import com.soft.wakuangapi.service.PinService;
 import com.soft.wakuangapi.utils.ResponseUtil;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +14,8 @@ import javax.annotation.Resource;
 public class PinController {
     @Resource
     private PinService pinService;
+    @Resource
+    private PinCommentService pinCommentService;
 
     @RequestMapping(value = "/releasePin",method = RequestMethod.POST)
     ResponseUtil releasePin(@RequestBody Pins pins){
@@ -60,4 +61,30 @@ public class PinController {
     ResponseUtil getOtherUserLikePins(@RequestBody UserTopicPin userTopicPin){
         return pinService.getOtherUserLikePins(userTopicPin);
     }
+
+    @RequestMapping(value = "/getPinComments",method = RequestMethod.POST)
+    ResponseUtil getPinComments(@RequestBody PinUser pinUser){
+        return pinCommentService.getPinComments(pinUser);
+    }
+
+    @RequestMapping(value = "/addPinComment",method = RequestMethod.POST)
+    ResponseUtil addPinComment(@RequestBody PinComment pinComment){
+        return pinCommentService.addPinComment(pinComment);
+    }
+
+    @RequestMapping(value = "/deletePinComment",method = RequestMethod.POST)
+    ResponseUtil deletePinComment(@RequestBody PinComment pinComment){
+        return pinCommentService.deltePinComment(pinComment);
+    }
+
+    @RequestMapping(value = "/insertPinCommentLike",method = RequestMethod.POST)
+    ResponseUtil insertPinCommentLike(@RequestBody PinCommentLike pinCommentLike){
+        return pinCommentService.insertPinCommentLike(pinCommentLike);
+    }
+
+    @RequestMapping(value = "/deletePinCommentLike",method = RequestMethod.POST)
+    ResponseUtil deletePinCommentLike(@RequestBody PinCommentLike pinCommentLike){
+        return pinCommentService.deltePinCommentLike(pinCommentLike);
+    }
+
 }

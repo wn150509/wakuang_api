@@ -54,6 +54,8 @@ public class PinServiceImpl implements PinService{
     private SysUserRepository sysUserRepository;
     @Resource
     private TopicRepository topicRepository;
+    @Resource
+    private PinCommentRepository pinCommentRepository;
 
     @Override
     public ResponseUtil releasePin(Pins pin1) {
@@ -143,7 +145,7 @@ public class PinServiceImpl implements PinService{
         if (userUserList.size()>0){
             for (int i=0;i<pinStatuses.size();i++){
                 for (int j=0;j<userUserList.size();j++){
-                    if (pinStatuses.get(i).getUsersId()==userUserList.get(j).getConcerneduserId()){
+                    if (pinStatuses.get(i).getUsersId().equals(userUserList.get(j).getConcerneduserId())){
                         pinStatusByUser.add(pinStatuses.get(i));
                     }
                 }
@@ -155,7 +157,7 @@ public class PinServiceImpl implements PinService{
         if (topicUserList.size()>0){
             for (int i=0;i<pinStatuses.size();i++){
                 for (int j=0;j<topicUserList.size();j++){
-                    if (pinStatuses.get(i).getTopicId()==topicUserList.get(j).getTopicId()){
+                    if (pinStatuses.get(i).getTopicId().equals(topicUserList.get(j).getTopicId())){
                         pinStatusByTopic.add(pinStatuses.get(i));
                     }
                 }
@@ -176,7 +178,7 @@ public class PinServiceImpl implements PinService{
                     //获取重复数组
                     for (int i=0;i<pinStatusByTopic.size();i++){
                         for (int j=0;j<pinStatusByUser.size();j++){
-                            if (pinStatusByTopic.get(i).getPinId()==pinStatusByUser.get(j).getPinId()){
+                            if (pinStatusByTopic.get(i).getPinId().equals(pinStatusByUser.get(j).getPinId())){
                                 pinStatuses1.add(pinStatusByUser.get(j));
                             }
                         }
@@ -185,7 +187,7 @@ public class PinServiceImpl implements PinService{
                     for (PinStatus pinStatusT : pinStatusByTopic) {
                         boolean flag = true;
                         for (PinStatus pinStatusU : pinStatusByUser) {
-                            if(pinStatusT.getPinId() == pinStatusU.getPinId()){
+                            if(pinStatusT.getPinId().equals(pinStatusU.getPinId()) ){
                                 flag = false;
                                 break;
                             }
@@ -228,7 +230,7 @@ public class PinServiceImpl implements PinService{
         List<PinVo>pinVoList=getPinVo(pinStatusList,userTopicPin);
         List<PinVo>pinVos=new ArrayList<>();
         for (int i=0;i<pinVoList.size();i++){
-            if (userTopicPin.getUserId()==pinVoList.get(i).getPinStatus().getUsersId()){
+            if (userTopicPin.getUserId().equals(pinVoList.get(i).getPinStatus().getUsersId())){
                 pinVos.add(pinVoList.get(i));
             }
         }
@@ -247,7 +249,7 @@ public class PinServiceImpl implements PinService{
         List<PinVo>pinVoList=getPinVo(pinStatusList,userTopicPin);
         List<PinVo>pinVos=new ArrayList<>();
         for (int i=0;i<pinVoList.size();i++){
-            if (userTopicPin.getConcerneduserId()==pinVoList.get(i).getPinStatus().getUsersId()){
+            if (userTopicPin.getConcerneduserId().equals(pinVoList.get(i).getPinStatus().getUsersId())){
                 pinVos.add(pinVoList.get(i));
             }
         }
@@ -269,7 +271,7 @@ public class PinServiceImpl implements PinService{
         if (pinUserList.size()>0){
             for (int i=0;i<pinVoList.size();i++){
                 for (int j=0;j<pinUserList.size();j++){
-                    if (pinVoList.get(i).getPinStatus().getPinId()==pinUserList.get(j).getPinId()){
+                    if (pinVoList.get(i).getPinStatus().getPinId().equals(pinUserList.get(j).getPinId())){
                         pinVos.add(pinVoList.get(i));
                     }
                 }
@@ -295,7 +297,7 @@ public class PinServiceImpl implements PinService{
         if (pinUserList.size()>0){
             for (int i=0;i<pinVoList.size();i++){
                 for (int j=0;j<pinUserList.size();j++){
-                    if (pinVoList.get(i).getPinStatus().getPinId()==pinUserList.get(j).getPinId()){
+                    if (pinVoList.get(i).getPinStatus().getPinId().equals(pinUserList.get(j).getPinId())){
                         pinVos.add(pinVoList.get(i));
                     }
                 }
@@ -362,12 +364,13 @@ public class PinServiceImpl implements PinService{
             int status=0;
             Pins pins=pinsList.get(i);
             List<PinUser>pinUsers=pinconcernRepository.findPinUsersByPinId(pins.getPinId());
+            List<PinComment>pinCommentList=pinCommentRepository.findAllByPinId(pins.getPinId());
             for (int j=0;j<pinUserList.size();j++){
-                if (pins.getPinId()==pinUserList.get(j).getPinId()){
+                if (pins.getPinId().equals(pinUserList.get(j).getPinId())){
                     status=1;
                 }
             }
-            PinStatus pinStatus=new PinStatus(pins.getPinId(),pins.getPinContent(),pins.getPinUrl(),pins.getCommentCount(),
+            PinStatus pinStatus=new PinStatus(pins.getPinId(),pins.getPinContent(),pins.getPinUrl(),pinCommentList.size(),
                     pinUsers.size(),pins.getUsersId(),pins.getCreateTime(),pins.getTopicId(),status);
             pinStatusList.add(pinStatus);
         }
@@ -384,7 +387,7 @@ public class PinServiceImpl implements PinService{
             SysUser sysUser=userList.get(i);
             int status=0;
             for (int j=0;j<userUsers.size();j++){
-                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                if (userUsers.get(j).getConcerneduserId().equals(userList.get(i).getUserId())){
                     status=1;
                 }
             }

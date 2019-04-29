@@ -42,7 +42,7 @@ public class LabelsServiceImpl implements LabelsService {
         List<ArticleStatus>articleStatuses=getArticleStatus(userid);
         List<ArticleStatus>articleStatusList=new ArrayList<>();
         for (int i=0;i<articleStatuses.size();i++){
-            if (articleStatuses.get(i).getLabelId()==labelid){
+            if (articleStatuses.get(i).getLabelId().equals(labelid)){
                 articleStatusList.add(articleStatuses.get(i));
             }
         }
@@ -76,7 +76,7 @@ public class LabelsServiceImpl implements LabelsService {
             List<Articles>labelarticlecount=articlesRepository.findAllByLabelId(labelsList.get(i).getLabelsId());
             int status=0;
             for (int j=0;j<concernUsers.size();j++){
-                if (concernUsers.get(j).getLabelId()==labelsList.get(i).getLabelsId()){
+                if (concernUsers.get(j).getLabelId().equals(labelsList.get(i).getLabelsId())){
                     status=1;
                 }
             }
@@ -110,7 +110,7 @@ public class LabelsServiceImpl implements LabelsService {
             int status=0;
             List<ArticleLike>articleLikes=likeRepository.findArticleLikeByArticleId(articles.getArticleId());
             for (int j=0;j<articleLikeList.size();j++){
-                if (articleLikeList.get(j).getArticleId()==articlesList.get(i).getArticleId()){
+                if (articleLikeList.get(j).getArticleId().equals(articlesList.get(i).getArticleId())){
                     status=1;
                 }
             }

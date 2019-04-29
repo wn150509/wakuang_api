@@ -19,8 +19,6 @@ public class CommentServiceImpl implements CommentService{
     @Resource
     private SysUserRepository sysUserRepository;
     @Resource
-    private UserConcernRepository userConcernRepository;
-    @Resource
     private CommentlikeRepository commentlikeRepository;
 
     @Override
@@ -48,7 +46,6 @@ public class CommentServiceImpl implements CommentService{
     @Override
     public ResponseUtil getComments(ArticleLike articleLike) {
         List<CommentStatus>commentStatuses=getCommentStatus(articleLike);
-
         return new ResponseUtil(0,"get comments status",paixuTime(commentStatuses));
     }
 
@@ -71,33 +68,16 @@ public class CommentServiceImpl implements CommentService{
             int status=0;
             List<CommentLike>commentLikeList=commentlikeRepository.findAllByCommentId(articleComment.getCommentId());
             for (int j=0;j<commentLikes.size();j++){
-                if (articleComment.getCommentId()==commentLikes.get(j).getCommentId()){
+                if (articleComment.getCommentId().equals(commentLikes.get(j).getCommentId())){
                     status=1;
                 }
             }
-            UserStatus userStatus=getOneUserStatus(articleLike.getUserId(),articleComment.getUserId());
-            CommentStatus commentStatus=new CommentStatus(articleComment.getCommentId(),articleComment.getArticleId(),userStatus,
+            SysUser sysUser=sysUserRepository.findSysUserByUserId(articleComment.getUserId());
+            CommentStatus commentStatus=new CommentStatus(articleComment.getCommentId(),articleComment.getArticleId(),sysUser,
                     articleComment.getCommentContent(),articleComment.getCommentTime(),commentLikeList.size(),status);
             commentStatuses.add(commentStatus);
         }
         return commentStatuses;
-    }
-
-    public UserStatus getOneUserStatus(Integer userId,Integer concernedId){
-        List<SysUser>userList=sysUserRepository.findAll();//获取表中所有用户信息
-        List<UserUser>userUsers=userConcernRepository.findAllByUserId(userId);//根据userId获取被关注用户ID组
-        UserStatus userStatus=new UserStatus();
-        SysUser sysUser=sysUserRepository.findSysUserByUserId(concernedId);//找到发布用户
-        int status=0;
-        for (int i=0;i<userUsers.size();i++){
-            if (userUsers.get(i).getConcerneduserId()==concernedId){
-                status=1;
-            }
-        }
-        userStatus=new UserStatus(sysUser.getUserId(),
-                sysUser.getUserAvatar(),sysUser.getUserName(),
-                sysUser.getDescription(),sysUser.getUserCompany(),sysUser.getUserPosition(),status);
-        return userStatus;
     }
 
     public List<CommentStatus> paixuTime(List<CommentStatus>commentStatuses){

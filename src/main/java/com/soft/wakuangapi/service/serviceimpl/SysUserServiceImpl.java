@@ -61,6 +61,10 @@ public class SysUserServiceImpl implements SysUserService {
     private PinconcernRepository pinconcernRepository;
     @Resource
     private TopicUserRepository topicUserRepository;
+    @Resource
+    private PinCommentRepository pinCommentRepository;
+    @Resource
+    private CommentRepository commentRepository;
 
     @Override
     public ResponseUtil userLogin(LoginUser loginUser) {
@@ -233,7 +237,7 @@ public class SysUserServiceImpl implements SysUserService {
             SysUser sysUser=userList.get(i);
             int status=0;
             for (int j=0;j<userUsers.size();j++){
-                if (userUsers.get(j).getConcerneduserId()==userList.get(i).getUserId()){
+                if (userUsers.get(j).getConcerneduserId().equals(userList.get(i).getUserId())){
                     status=1;
                 }
             }
@@ -245,7 +249,7 @@ public class SysUserServiceImpl implements SysUserService {
         List<UserStatus>userStatuses=new ArrayList<>();
         for (int i=0;i<userStatuses0.size();i++){
             for (int j=0;j<querySysUserList.size();j++){
-                if (userStatuses0.get(i).getUserId()==querySysUserList.get(j).getUserId()){
+                if (userStatuses0.get(i).getUserId().equals(querySysUserList.get(j).getUserId())){
                     userStatuses.add(userStatuses0.get(i));
                 }
             }
@@ -254,12 +258,12 @@ public class SysUserServiceImpl implements SysUserService {
     }
 
     @Override
-    public ResponseUtil getMessageCount(Integer articleId) {
-        Articles articles=articlesRepository.findArticlesByArticleId(articleId);
+    public ResponseUtil getMessageCount(Integer id) {
+        Articles articles=articlesRepository.findArticlesByArticleId(id);
         SysUser sysUser=sysUserRepository.findSysUserByUserId(articles.getUsersId());
         List<Articles>articlesList=articlesRepository.findAllByUsersId(sysUser.getUserId());//专栏数
         List<Pins>pinsList=pinRepository.findAllByUsersId(sysUser.getUserId());//沸点数
-        List<UserUser>userUsers=userConcernRepository.findAllByUserId(sysUser.getUserId());//关注数
+        List<UserUser>userUsers=userConcernRepository.findAllByUserId(sysUser.getUserId());//关注作者数
         List<UserUser>userUserList=userConcernRepository.findAllByConcerneduserId(sysUser.getUserId());//被关注数
         MessageCount messageCount=new MessageCount(pinsList.size(),articlesList.size(),userUsers.size(),userUserList.size());
         return new ResponseUtil(0,"get message count",messageCount);
@@ -361,5 +365,31 @@ public class SysUserServiceImpl implements SysUserService {
             e.printStackTrace();
         }
         return new ResponseUtil(0,"check message code",code);
+    }
+
+    @Override
+    public ResponseUtil getUserRightMessageCount(UserUser userUser) {
+        List<Pins>pinsList=pinRepository.findAllByUsersId(userUser.getUserId());//沸点数
+        List<Articles>articlesList=articlesRepository.findAllByUsersId(userUser.getUserId());//专栏数
+        List<UserUser>userUserList=userConcernRepository.findAllByUserId(userUser.getUserId());//用户关注了作者数
+        List<UserUser>userUsers=userConcernRepository.findAllByConcerneduserId(userUser.getUserId());//用户受关注数
+        List<ConcernUser>concernUsers=concernRepository.findAllByUserId(userUser.getUserId());//用户关注标签数
+        List<TopicUser>topicUserList=topicUserRepository.findAllByUserId(userUser.getUserId());//用户关注话题数量
+        int likeCount=0;int commentCount=0;//获得赞数//被评论数
+        for (int i=0;i<pinsList.size();i++){
+            List<PinUser>pinUsers=pinconcernRepository.findPinUsersByPinId(pinsList.get(i).getPinId());
+            List<PinComment>pinCommentList=pinCommentRepository.findAllByPinId(pinsList.get(i).getPinId());
+            likeCount+=pinUsers.size();
+            commentCount+=pinCommentList.size();
+        }
+        for (int i=0;i<articlesList.size();i++){
+            List<ArticleLike>articleLikes=likeRepository.findArticleLikeByArticleId(articlesList.get(i).getArticleId());
+            List<ArticleComment>articleCommentList=commentRepository.findAllByArticleId(articlesList.get(i).getArticleId());
+            likeCount+=articleLikes.size();
+            commentCount+=articleCommentList.size();
+        }
+        UserRightMessageCount userRightMessageCount=new UserRightMessageCount(pinsList.size(),articlesList.size(),userUserList.size(),
+                userUsers.size(),likeCount,commentCount,concernUsers.size(),topicUserList.size());
+        return new ResponseUtil(0,"get userRightMessageCount",userRightMessageCount);
     }
 }
