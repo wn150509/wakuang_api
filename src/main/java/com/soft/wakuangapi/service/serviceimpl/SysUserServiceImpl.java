@@ -135,6 +135,13 @@ public class SysUserServiceImpl implements SysUserService {
         String str1=new QiNiuFileUpUtil().publicFile(key,"http://123.pen46789.cn");
         user.setUserAvatar(str1);
         sysUserRepository.save(user);
+        List<Articles>articlesList=articlesRepository.findAllByUsersId(user.getUserId());
+        if (articlesList.size()>0){
+            for (int i=0;i<articlesList.size();i++){
+                articlesList.get(i).setAuthorAvatar(str1);
+                articlesRepository.save(articlesList.get(i));
+            }
+        }
         return sysUserRepository.findSysUserByEmail(account);
     }
     //简单上传，使用默认策略，只需要设置上传的空间名就可以了
