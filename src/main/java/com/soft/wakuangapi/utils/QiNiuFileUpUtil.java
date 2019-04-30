@@ -1,8 +1,9 @@
 package com.soft.wakuangapi.utils;
 
-import com.sun.deploy.net.URLEncoder;
+//import com.sun.deploy.net.URLEncoder;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
