@@ -10,6 +10,12 @@ public interface CommentlikeRepository extends JpaRepository<CommentLike,Integer
     @Transactional
     int deleteCommentLikeByCommentIdAndUserId(Integer commentId,Integer userId);
 
+    @Transactional
+    int deleteAllByCommentId(Integer commentId);
+
+    @Transactional
+    int deleteAllByUserId(Integer userId);
+
     List<CommentLike>findAllByUserId(Integer userId);
 
     List<CommentLike>findAllByCommentId(Integer commentId);

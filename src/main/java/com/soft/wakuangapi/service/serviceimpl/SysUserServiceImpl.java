@@ -53,7 +53,11 @@ public class SysUserServiceImpl implements SysUserService {
     @Resource
     private PinCommentRepository pinCommentRepository;
     @Resource
+    private PinCommentLikeRepository pinCommentLikeRepository;
+    @Resource
     private CommentRepository commentRepository;
+    @Resource
+    private CommentlikeRepository commentlikeRepository;
 
     @Override
     public ResponseUtil userLogin(LoginUser loginUser) {
@@ -275,6 +279,28 @@ public class SysUserServiceImpl implements SysUserService {
                 likeRepository.deleteArticleLikeByUserIdAndArticleId(userId,articleLikeList.get(i).getArticleId());//删除该用户点赞的文章数据
             }
         }
+        //删除发布的文章评论被点赞数据
+        List<ArticleComment>articleCommentList=commentRepository.findAllByUserId(userId);
+        if (articleCommentList.size()>0){
+            for (int i=0;i<articleCommentList.size();i++){
+                commentlikeRepository.deleteAllByCommentId(articleCommentList.get(i).getCommentId());
+            }
+            //删除文章评论
+            pinCommentRepository.deleteAllByUserId(userId);
+        }
+        //删除发布的沸点评论被点赞数据
+        List<PinComment>pinCommentList=pinCommentRepository.findAllByUserId(userId);
+        if (pinCommentList.size()>0){
+            for(int i=0;i<pinCommentList.size();i++){
+                pinCommentLikeRepository.deleteAllByCommentId(pinCommentList.get(i).getCommentId());
+            }
+            //删除沸点评论
+            commentRepository.deleteAllByUserId(userId);
+        }
+        //删除点赞文章评论的数据
+        commentlikeRepository.deleteAllByUserId(userId);
+        //删除点赞沸点评论的数据
+        pinCommentLikeRepository.deleteAllByUserId(userId);
         return new ResponseUtil(0,"delete user account");
     }
 

@@ -12,4 +12,8 @@ public interface PinCommentRepository extends JpaRepository<PinComment,Integer> 
     int deletePinCommentByCommentId(Integer commentId);
 
     List<PinComment>findAllByPinId(Integer pinId);
+    List<PinComment>findAllByUserId(Integer userId);
+
+    @Transactional
+    int deleteAllByUserId(Integer userId);
 }

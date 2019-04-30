@@ -9,6 +9,10 @@ import java.util.List;
 public interface PinCommentLikeRepository extends JpaRepository<PinCommentLike,Integer> {
     @Transactional
     int deletePinCommentLikeByCommentIdAndUserId(Integer commentId,Integer userId);
+    @Transactional
+    int deleteAllByCommentId(Integer commentId);
+    @Transactional
+    int deleteAllByUserId(Integer userId);
 
     List<PinCommentLike>findAllByCommentId(Integer commentId);
 
