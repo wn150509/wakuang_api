@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/books")
-@CrossOrigin("http://localhost:81")
 public class BooksController {
     @Resource
     private BooksService booksService;

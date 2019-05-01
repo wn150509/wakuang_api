@@ -11,7 +11,6 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/collections")
-@CrossOrigin("http://localhost:81")
 public class CollectionsController {
     @Resource
     private CollectionsService collectionsService;

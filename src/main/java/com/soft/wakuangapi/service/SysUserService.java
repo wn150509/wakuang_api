@@ -28,4 +28,6 @@ public interface SysUserService {
     ResponseUtil checkMessageCode(LoginUser loginUser);
 
     ResponseUtil getUserRightMessageCount(UserUser userUser);
+
+    ResponseUtil changePassword(ChangePassword changePassword);
 }

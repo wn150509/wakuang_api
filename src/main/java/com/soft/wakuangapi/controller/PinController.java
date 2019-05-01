@@ -10,7 +10,6 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/pin")
-@CrossOrigin("http://localhost:81")
 public class PinController {
     @Resource
     private PinService pinService;

@@ -367,4 +367,18 @@ public class SysUserServiceImpl implements SysUserService {
                 userUsers.size(),likeCount,commentCount,concernUsers.size(),topicUserList.size());
         return new ResponseUtil(0,"get userRightMessageCount",userRightMessageCount);
     }
+
+    @Override
+    public ResponseUtil changePassword(ChangePassword changePassword) {
+        SysUser sysUser=sysUserRepository.findSysUserByEmail(changePassword.getPhone());
+        int code=0;
+        if (sysUser==null){
+            code=1;
+            System.out.println("未注册用户");
+        }else {
+            sysUser.setPassword(changePassword.getNewPassword());
+            sysUserRepository.save(sysUser);
+        }
+        return new ResponseUtil(code,"change password");
+    }
 }

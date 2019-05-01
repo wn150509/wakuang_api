@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 @RestController
 @RequestMapping(value = "/topics")
-@CrossOrigin("http://localhost:81")
 public class TopicController {
     @Resource
     private TopicService topicService;

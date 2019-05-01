@@ -11,7 +11,6 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/user")
-@CrossOrigin("http://localhost:81")
 public class SysUserController {
     @Resource
     private SysUserService sysUserService;
@@ -111,5 +110,10 @@ public class SysUserController {
     @RequestMapping(value = "/userRightMessageCount",method = RequestMethod.POST)
     public ResponseUtil getUserRightMessageCount(@RequestBody UserUser userUser){
         return sysUserService.getUserRightMessageCount(userUser);
+    }
+
+    @RequestMapping(value = "/changePassword",method = RequestMethod.POST)
+    public ResponseUtil changePassword(@RequestBody ChangePassword changePassword){
+        return sysUserService.changePassword(changePassword);
     }
 }

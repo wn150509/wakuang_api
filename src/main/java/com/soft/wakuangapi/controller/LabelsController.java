@@ -10,7 +10,6 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/labels")
-@CrossOrigin("http://localhost:81")
 public class LabelsController {
     @Resource
     private LabelsService labelsService;
