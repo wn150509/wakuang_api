@@ -12,6 +12,9 @@ public interface ConcernRepository extends JpaRepository<ConcernUser,Integer> {
     @Transactional
     int deleteConcernUserByUserIdAndLabelId(Integer userid,Integer labelid);
 
+    @Transactional
+    int deleteAllByLabelId(Integer labelId);
+
     List<ConcernUser>findAllByLabelId(Integer id);
 
     ConcernUser findConcernUserByLabelIdAndUserId(Integer labelid,Integer userid);

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 public interface LabelsRepository extends JpaRepository<Labels,Integer>{
@@ -15,6 +16,9 @@ public interface LabelsRepository extends JpaRepository<Labels,Integer>{
     Labels findLabelsByLabelsId(Integer id);
 
     Labels findLabelsByLabelsName(String name);
+
+    @Transactional
+    int deleteLabelsByLabelsId(Integer labelId);
 
     /**
      *

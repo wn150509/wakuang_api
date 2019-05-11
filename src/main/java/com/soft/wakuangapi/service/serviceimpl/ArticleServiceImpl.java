@@ -1,7 +1,6 @@
 package com.soft.wakuangapi.service.serviceimpl;
 
 import com.qiniu.util.Auth;
-import com.qiniu.util.Base64;
 import com.qiniu.util.StringMap;
 import com.qiniu.util.UrlSafeBase64;
 import com.soft.wakuangapi.dao.*;
@@ -14,8 +13,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.springframework.stereotype.Service;
-import sun.misc.BASE64Decoder;
-
 import javax.annotation.Resource;
 import java.io.*;
 import java.text.ParseException;

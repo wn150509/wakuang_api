@@ -36,4 +36,7 @@ public interface ArticlesRepository extends JpaRepository<Articles,Integer> {
     //删除文章
     @Transactional
     int deleteArticlesByArticleIdAndUsersId(Integer articleId,Integer userId);
+
+    @Transactional
+    int deleteAllByLabelId(Integer labelId);
 }

@@ -12,6 +12,9 @@ public interface TopicUserRepository extends JpaRepository<TopicUser,Integer> {
     @Transactional
     int deleteTopicUserByUserIdAndTopicId(Integer userid,Integer topicid);
 
+    @Transactional
+    int deleteAllByTopicId(Integer topicId);
+
     List<TopicUser>findAllByTopicId(Integer topicid);
 
     TopicUser findTopicUserByUserIdAndTopicId(Integer userid,Integer topicid);
