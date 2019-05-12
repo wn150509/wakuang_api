@@ -35,7 +35,7 @@ public class TopicServiceImpl implements TopicService {
 
     @Override
     public ResponseUtil getTopicIdbyName(String topicName) {
-        return new ResponseUtil(0,"get topicid by name",topicRepository.findTopicsByTopicName(topicName));
+        return new ResponseUtil(0,"get topicid by name",topicRepository.findTopicsByTopicName(topicName).getTopicId());
     }
 
     @Override
@@ -58,10 +58,7 @@ public class TopicServiceImpl implements TopicService {
                     }
                 }
             }
-        }else {
-            userStatuses=null;
         }
-
         List<PinStatus>pinStatusList=getSomeOnePinStatus(userTopicPin.getUserId());
         List<PinVo>pinVoList=getPinVo(pinStatusList,userTopicPin);
         List<PinVo>pinVosByLike=new ArrayList<>();
